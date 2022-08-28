@@ -48,6 +48,12 @@ body {
     background-color: #042f3a;
     border-radius: 6px;
 }
+input[type=text]::-ms-clear {  display: none; width : 0; height: 0; }
+input[type=text]::-ms-reveal {  display: none; width : 0; height: 0; }
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { display: none; }
 
 p {
     margin: 0;
@@ -94,9 +100,9 @@ p {
     padding: 16px;
 }
 .printer {
-    font-size: 22px;
+    font-size: 20px;
     padding-top: 16px;
-    padding-left: 22px;
+    padding-left: 20px;
     font-weight: bold;
 }
 
@@ -121,6 +127,10 @@ p {
 .search input[type="search"]::placeholder {
   color: rgb(168, 168, 168);
 }
+.search input[type="search"]:focus {
+  border-color: #1183d6;
+  outline: none;
+}
 
 .search button {
   text-indent: -999px;
@@ -133,15 +143,11 @@ p {
   border-radius: inherit;
   background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
   cursor: pointer;
-  opacity: 0.7;
-  margin-left: -40px;
+  opacity: 0.5;
+  transition: all 0.2s;
+  margin-left: -44px;
 }
 
-.search input[type="search"]:focus {
-  box-shadow: 0 0 3px 0 #1183d6;
-  border-color: #1183d6;
-  outline: none;
-}
 .search button:hover {
   opacity: 1;
 }
@@ -200,6 +206,41 @@ p {
     </div>
 </body>
 <script type="application/javascript">
-    console.log('here!');
+var app = {
+    lastSearch: '',
+    init: function() {
+        app.input = document.querySelector(".search input");
+        app.input.addEventListener("keyup", app.keyHandler);
+        app.button = document.querySelector(".search button");
+        app.button.addEventListener("click", app.keyHandler);
+    },
+    reset: function() {
+        app.lastSearch = '';
+        app.input.value = '';
+    },
+    search: function(str) {
+        if(!str) return;
+        app.lastSearch = str;
+        console.log("Search: "+str);
+        app.apiCall(app.lastSearch);
+    },
+    keyHandler: function(e) {
+        if(e.type === 'click') return app.search(app.input.value);
+        if(e.key === 'Enter') return app.search(e.target.value);
+        if(e.key === 'Escape') return app.reset();
+    },
+    apiHanler: function() {
+        console.log(this.responseText);
+    },
+    apiCall: function(str) {
+        // 'https://www.staples.com/searchux/common/api/v1/searchProxy?SEARCHUX2=true&ajaxRequest=true&deviceType=desktop&term=' + escape(str);
+        const uri = 'http://ellgree.com/staples.php?term=' + escape(str);
+        const req = new XMLHttpRequest();
+        req.addEventListener("load", app.apiHanler);
+        req.open("GET", uri);
+        req.send();
+    }
+};
+onload = app.init;
 </script>
 </html>
