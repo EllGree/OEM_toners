@@ -3,34 +3,203 @@
 
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OEM Tonner Search</title>
-    <script crossorigin="anonymous" defer="defer" type="application/javascript" src="app.js"></script>
-    <link crossorigin="anonymous" media="all" rel="stylesheet" href="style.css" />
+    <style>
+body {
+    margin: 0;
+    font-family: "Helvetica", sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    /* For firefox: */
+    scrollbar-color: #042f3a rgba(5, 51, 65, 0.1);
+    scrollbar-width: thin;
+    cursor: pointer;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 6px;
+    border: 0px solid transparent;
+}
+
+*:hover::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    scrollbar-color: #042f3a rgba(5, 51, 65, 0.1);
+}
+
+*:hover::-webkit-scrollbar-track {
+    background: rgba(5, 51, 65, 0.1);
+}
+
+*:hover::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb:hover {
+    background-color: #042f3a;
+    border-radius: 6px;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.cards-set {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card {
+    display: flexbox;
+    margin: 16px;
+    min-width: 280px;
+    min-height: 180px;
+    font-size: 16px;
+    background-color: #ffffff;
+    border-radius: 2px;
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+}
+
+.card .heading {
+    position: relative;
+    background-color: #000;
+    font-size: 20px;
+    line-height: normal;
+    padding: 8px;
+    font-weight: bold;
+    height: 22px;
+    color: #ffffff;
+}
+.card.cyan .heading {
+    background-color: rgb(0, 145, 145);
+}
+.card.magenta .heading {
+    background-color: rgb(152, 0, 152);
+}
+.card.yellow .heading {
+    background-color: rgb(213, 213, 0);
+}
+
+.card .content {
+    padding: 16px;
+}
+.printer {
+    font-size: 22px;
+    padding-top: 16px;
+    padding-left: 22px;
+    font-weight: bold;
+}
+
+.search {
+    display: block;
+    margin: 16px;
+    margin-right: 8px;
+    border: none;
+}
+.search input[type="search"] {
+  display: inline-block;
+  width: calc(100% - 5px);
+  border: solid 1px rgb(168, 168, 168);
+  border-radius: 2px;
+  background: transparent;
+  margin: 0;
+  padding: 7px 8px;
+  font-size: 16px;
+  color: inherit;
+}
+
+.search input[type="search"]::placeholder {
+  color: rgb(168, 168, 168);
+}
+
+.search button {
+  text-indent: -999px;
+  overflow: hidden;
+  width: 40px;
+  height: 33px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+  cursor: pointer;
+  opacity: 0.7;
+  margin-left: -40px;
+}
+
+.search input[type="search"]:focus {
+  box-shadow: 0 0 3px 0 #1183d6;
+  border-color: #1183d6;
+  outline: none;
+}
+.search button:hover {
+  opacity: 1;
+}
+.search .recent {
+    transition: all 0.2s;
+    opacity: 0;
+    height: 0;
+    width: calc(100% - 32px);
+    position: fixed;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+.search:hover .recent {
+    z-index: 100;
+    opacity: 1;
+    height: auto;
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+}
+.search .recent div {
+    padding: 8px;
+}
+    </style>
 </head>
 
 <body>
+    <div class="search">
+        <input type="search" placeholder="Enter the printer name" /> 
+        <button>Search</button>
+        <div class="recent">
+            <div>Recent Seaches</div>
+            <div>Recent Seaches</div>
+            <div>Recent Seaches</div>
+            <div>Recent Seaches</div>
+            <div>Recent Seaches</div>
+            <div>Recent Seaches</div>
+        </div>
+    </div>
+    <div class="printer">Printer Name</div>
     <div class="cards-set">
         <div class="card">
-            <div class="heading"></div>
-            <div class="content">
-                <p>This is a text</p>
-            </div>
+            <div class="heading">Black</div>
+            <div class="content">Text</div>
         </div>
-        <div class="card">
-            <div class="heading" style="background-color: #4285f4">
-                <h1>Hello</h1>
-            </div>
-            <div class="content">
-                <p>This is a text</p>
-            </div>
+        <div class="card cyan">
+            <div class="heading">Hello</div>
+            <div class="content">Text</div>
         </div>
-        <div class="card">
-            <div class="heading" style="background-color: #d23f31"></div>
-            <div class="content">
-                <p>This is a text</p>
-            </div>
+        <div class="card magenta">
+            <div class="heading">Magenta</div>
+            <div class="content">Text</div>
+        </div>
+        <div class="card yellow">
+            <div class="heading">Yellow</div>
+            <div class="content">Text</div>
         </div>
     </div>
 </body>
-
+<script type="application/javascript">
+    console.log('here!');
+</script>
 </html>
