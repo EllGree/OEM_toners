@@ -17,3 +17,8 @@ HP Color LaserJet CP3525 (color printer):
  - Black toner Yield: 5,000 impressions
  - Cyan, Yellow, and Magenta standard yield cartridge cost: $311.89 (each color costs the same)
  - Color cartridge yield: 7,000 impressions (each color has the same yield)
+
+Tested on printer models:
+ - HP LaserJet Pro M404
+ - HP Color LaserJet CP3525
+ - HP Photosmart C4272
