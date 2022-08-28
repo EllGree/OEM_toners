@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,58 +12,14 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
-*::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-    /* For firefox: */
-    scrollbar-color: #042f3a rgba(5, 51, 65, 0.1);
-    scrollbar-width: thin;
-    cursor: pointer;
-}
-
-*::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-    background-color: transparent;
-    border-radius: 6px;
-    border: 0px solid transparent;
-}
-
-*:hover::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-    scrollbar-color: #042f3a rgba(5, 51, 65, 0.1);
-}
-
-*:hover::-webkit-scrollbar-track {
-    background: rgba(5, 51, 65, 0.1);
-}
-
-*:hover::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-thumb:hover {
-    background-color: #042f3a;
-    border-radius: 6px;
-}
-input[type=text]::-ms-clear {  display: none; width : 0; height: 0; }
-input[type=text]::-ms-reveal {  display: none; width : 0; height: 0; }
+input[type=text]::-ms-clear { display: none; width : 0; height: 0; }
+input[type=text]::-ms-reveal { display: none; width : 0; height: 0; }
 input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration { display: none; }
 
-p {
-    margin: 0;
-    padding: 0;
-}
-
-.cards-set {
-    display: flex;
-    justify-content: space-between;
-}
-
+#results { display: flex; justify-content: space-between; flex-wrap: wrap;}
 .card {
     display: flexbox;
     margin: 16px;
@@ -75,37 +30,21 @@ p {
     border-radius: 2px;
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
 }
-
 .card .heading {
-    position: relative;
     background-color: #000;
     font-size: 20px;
-    line-height: normal;
     padding: 8px;
     font-weight: bold;
     height: 22px;
     color: #ffffff;
 }
-.card.cyan .heading {
-    background-color: rgb(0, 145, 145);
-}
-.card.magenta .heading {
-    background-color: rgb(152, 0, 152);
-}
-.card.yellow .heading {
-    background-color: rgb(213, 213, 0);
-}
-
+.card.cyan .heading {background-color: rgb(0, 145, 145);}
+.card.magenta .heading {background-color: rgb(152, 0, 152);}
+.card.yellow .heading {background-color: rgb(213, 213, 0);}
 .card .content {
     padding: 16px;
 }
-.printer {
-    font-size: 20px;
-    padding-top: 16px;
-    padding-left: 20px;
-    font-weight: bold;
-}
-
+.printer {font-size: 20px; padding-top: 16px; padding-left: 20px; font-weight: bold; width: 100%;}
 .search {
     display: block;
     margin: 16px;
@@ -123,7 +62,6 @@ p {
   font-size: 16px;
   color: inherit;
 }
-
 .search input[type="search"]::placeholder {
   color: rgb(168, 168, 168);
 }
@@ -166,8 +104,110 @@ p {
     height: auto;
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
 }
-.search .recent div {
-    padding: 8px;
+.search .recent .term, .search .recent .clear {
+    padding: 8px; cursor: pointer;
+}
+.search .recent .clear:hover, .search .recent .term:hover {
+    text-decoration: underline;
+    color: navy;
+}
+.search .recent .clear {
+    float: right; font-size: 14px; margin-top: -18px;
+}
+
+.loading-mask {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: #5c5c5c;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 9999;
+  opacity: 0.4;
+}
+.loading-mask:before {
+  content: "";
+  background-color: rgba(0, 0, 0, 0);
+  border: 5px solid rgba(0, 183, 229, 0.9);
+  opacity: 0.9;
+  border-right: 5px solid rgba(0, 0, 0, 0);
+  border-left: 5px solid rgba(0, 0, 0, 0);
+  border-radius: 50px;
+  box-shadow: 0 0 35px #2187e7;
+  width: 50px;
+  height: 50px;
+  -moz-animation: spinPulse 1s infinite ease-in-out;
+  -webkit-animation: spinPulse 1s infinite linear;
+  margin: -25px 0 0 -25px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.loading-mask:after {
+  content: "";
+  background-color: rgba(0, 0, 0, 0);
+  border: 5px solid rgba(0, 183, 229, 0.9);
+  opacity: 0.9;
+  border-left: 5px solid rgba(0, 0, 0, 0);
+  border-right: 5px solid rgba(0, 0, 0, 0);
+  border-radius: 50px;
+  box-shadow: 0 0 15px #2187e7;
+  width: 30px;
+  height: 30px;
+  -moz-animation: spinoffPulse 1s infinite linear;
+  -webkit-animation: spinoffPulse 1s infinite linear;
+  margin: -15px 0 0 -15px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+@-moz-keyframes spinPulse {
+  0% {
+    -moz-transform: rotate(160deg);
+    opacity: 0;
+    box-shadow: 0 0 1px #2187e7;
+  }
+  50% {
+    -moz-transform: rotate(145deg);
+    opacity: 1;
+  }
+  100% {
+    -moz-transform: rotate(-320deg);
+    opacity: 0;
+  }
+}
+@-moz-keyframes spinoffPulse {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spinPulse {
+  0% {
+    -webkit-transform: rotate(160deg);
+    opacity: 0;
+    box-shadow: 0 0 1px #2187e7;
+  }
+  50% {
+    -webkit-transform: rotate(145deg);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: rotate(-320deg);
+    opacity: 0;
+  }
+}
+@-webkit-keyframes spinoffPulse {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
     </style>
 </head>
@@ -177,16 +217,15 @@ p {
         <input type="search" placeholder="Enter the printer name" /> 
         <button>Search</button>
         <div class="recent">
-            <div>Recent Seaches</div>
-            <div>Recent Seaches</div>
-            <div>Recent Seaches</div>
-            <div>Recent Seaches</div>
-            <div>Recent Seaches</div>
-            <div>Recent Seaches</div>
+            <div class="term" onclick="app.keyHandler(this)">HP LaserJet Pro M404</div>
+            <div class="term" onclick="app.keyHandler(this)">HP Color LaserJet CP3525</div>
+            <div class="term" onclick="app.keyHandler(this)">HP Photosmart C4272</div>
+            <div class="clear" onclick="app.keyHandler(this)">Clear History</div>
         </div>
     </div>
-    <div class="printer">Printer Name</div>
-    <div class="cards-set">
+    
+    <div id="results">
+        <div class="printer">Printer Name</div>
         <div class="card">
             <div class="heading">Black</div>
             <div class="content">Text</div>
@@ -213,31 +252,52 @@ var app = {
         app.input.addEventListener("keyup", app.keyHandler);
         app.button = document.querySelector(".search button");
         app.button.addEventListener("click", app.keyHandler);
+        app.recent = document.querySelector(".search .recent");
+        // populate app.recent from localStorage
     },
     reset: function() {
         app.lastSearch = '';
         app.input.value = '';
     },
+    mask: function(on) {
+        document.body.className = on ? 'loading-mask' : '';
+    },
     search: function(str) {
-        if(!str) return;
-        app.lastSearch = str;
-        console.log("Search: "+str);
-        app.apiCall(app.lastSearch);
+        if(str && app.lastSearch !== str) app.apiCall(str);
+    },
+    clearHistory: function() {
+        localStorage.clear();
+        app.recent.innerHTML = '';
     },
     keyHandler: function(e) {
-        if(e.type === 'click') return app.search(app.input.value);
-        if(e.key === 'Enter') return app.search(e.target.value);
-        if(e.key === 'Escape') return app.reset();
-    },
-    apiHanler: function() {
-        console.log(this.responseText);
+        if(e.innerText) {
+            if(e.className === 'term') app.search(e.innerText);
+            else if(e.className === 'clear') app.clearHistory();
+        } else if(e.type === 'click') app.search(app.input.value);
+        else if(e.key === 'Enter') app.search(e.target.value);
+        else if(e.key === 'Escape') app.reset();
     },
     apiCall: function(str) {
-        // 'https://www.staples.com/searchux/common/api/v1/searchProxy?SEARCHUX2=true&ajaxRequest=true&deviceType=desktop&term=' + escape(str);
-        const uri = 'http://ellgree.com/staples.php?term=' + escape(str);
-        const req = new XMLHttpRequest();
-        req.addEventListener("load", app.apiHanler);
-        req.open("GET", uri);
+        app.mask(true);
+        app.input.value = app.lastSearch = str;
+        var req = new XMLHttpRequest();
+        req.addEventListener('load', function() {
+            try {
+                app.response = JSON.parse(this.responseText);
+            } catch(e) {
+                alert('Failed to search: API wrong reply' + e);
+                console.log(this.responseText);
+            }
+            console.log(app.response);
+        });
+        req.addEventListener('readystatechange', function(e) {
+            if(this.readyState === XMLHttpRequest.DONE) app.mask(false);
+        });
+        req.addEventListener('error', function() {
+            app.input.value = '';
+            alert('Failed to search: API Error');
+        });
+        req.open("GET", window.location.href + '?term' + escape(str));
         req.send();
     }
 };
