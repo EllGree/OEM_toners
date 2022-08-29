@@ -23,3 +23,6 @@ Tested on printer models:
  - HP Color LaserJet CP3525
  - HP Photosmart C4272
  - HP LaserJet Pro MFP 3101
+ - HP ENVY Inspire 7955e
+ - Epson EcoTank ET-2800
+ - Brother MFC-J1010DW

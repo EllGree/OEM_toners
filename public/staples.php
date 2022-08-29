@@ -1,6 +1,6 @@
 <?php
 /**
- * PrinterProject - Search for the OEM toner and information using staples.com API
+ * Search for the OEM toner and information using staples.com API
  *
  * @author   EllGree <ellgree@gmail.com>
  */
@@ -39,7 +39,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OEM Tonner Search</title>
+    <title>OEM Ink / Toner Search</title>
     <style>
 body {
     margin: 0;
@@ -88,20 +88,23 @@ body {
 .search .recent {
     transition: all 0.2s;
     opacity: 0;
+    max-height: 0;
     height: 0;
     width: calc(100% - 31px);
     position: fixed;
     overflow: hidden;
     background-color: #ebebeb;
     color: #010f54;
-    border: 1px solid #d5d5d5;
-    margin-top: -1px;
+    border: none;
+    box-shadow: none;
 }
 .search:hover .recent {
+    margin-top: -1px;
     z-index: 100;
     opacity: 1;
     height: auto;
     max-height: calc(100% - 66px);
+    border: 1px solid #a8a8a8;
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
 }
 .search .recent .term, .search .recent .clear {
@@ -118,7 +121,7 @@ body {
 #results {display: block;padding: 18px;}
 .title {font-weight: bold;margin-bottom:6px;}
 .subtitle {font-weight: normal;margin-bottom:6px;}
-.details {font-size: 14px;margin-bottom:4px;}
+.details {font-size: 12px;margin-bottom:4px;}
 .details::before {
     content:'';
     background: rgb(100, 100, 100);
@@ -137,7 +140,11 @@ body {
     background: linear-gradient(90deg, rgb(0, 145, 145) 0%, rgb(0, 145, 145) 33%, rgb(152, 0, 152) 33%, rgb(152, 0, 152) 66%, rgb(213, 213, 0) 66%, rgb(213, 213, 0) 100%);
 }
 
+#mask {
+    display: none;
+}
 .loading-mask {
+  display: block !important;
   position: absolute;
   height: 100%;
   width: 100%;
@@ -147,7 +154,7 @@ body {
   right: 0;
   top: 0;
   z-index: 9999;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 .loading-mask:before {
   content: "";
@@ -246,6 +253,7 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
         <div class="recent"></div>
     </div>
     <div id="results"></div>
+    <div id="mask"></div>
 </body>
 <script type="application/javascript">
 var app = {
@@ -258,6 +266,7 @@ var app = {
         app.button.addEventListener("click", app.keyHandler);
         app.recent = document.querySelector(".search .recent");
         app.results = document.getElementById('results');
+        app.mask = document.getElementById('mask');
         app.showHistory();
     },
     reset: function() {
@@ -303,17 +312,18 @@ var app = {
         }
         var html = '<div class="title">'+data.name+' ('+data.type+' printer)</div>';
         if(data.type === 'monochrome') {
-            html += '<div class="subtitle">Standard Yield Toner Cost: $' + data.cost + '</div>';
-            html += '<div class="subtitle">Black Toner Yield: ' + data.yeld + ' impressions</div>';
+            if(data.cost) html += '<div class="subtitle">Standard Yield Toner Cost: $' + data.cost + '</div>';
+            if(data.yeld) html += '<div class="subtitle">Black Toner Yield: ' + data.yeld + ' impressions</div>';
         } else {
-            html += '<div class="subtitle">Standard Yield Black Toner Cost: $' + data.cost + '</div>';
-            html += '<div class="subtitle">Black Toner Yield: ' + data.yeld + ' impressions</div>';
-            html += '<div class="subtitle">Color Standard Yield cartridge cost: ' + data.ccost + '</div>';
-            html += '<div class="subtitle">Color cartridge yield: ' + data.cyeld + ' impressions</div>';
+            if(data.cost) html += '<div class="subtitle">Standard Yield Black Toner Cost: $' + data.cost + '</div>';
+            if(data.yeld) html += '<div class="subtitle">Black Toner Yield: ' + data.yeld + ' impressions</div>';
+            if(data.ccost) html += '<div class="subtitle">Color Standard Yield cartridge cost: ' + data.ccost + '</div>';
+            if(data.cyeld) html += '<div class="subtitle">Color cartridge yield: ' + data.cyeld + ' impressions</div>';
         }
         html += '<div class="subtitle">Details:</div>';
         data.details.forEach(function(d) {
-            html += '<div class="details '+d.color+'">' + d.name + ' ($'+d.cost+' per '+d.yeld+' impressions)</div>';
+            html += '<div class="details '+d.color+'">' + d.name + ' ($'+d.cost+
+                (d.yeld ? ' / '+d.yeld+' impressions' : '') + ')</div>';
         });
         app.results.innerHTML = html;
     },
@@ -355,13 +365,14 @@ var app = {
         });
         // Post-processing:
         if (p.title.match(/High Yield/)) standard = false;
+        console.log(standard,{p},{ret});
         if (!standard) return null;
         if (ret.color.match('cyan/magenta/yellow')) ret.color = 'tri-color';
         return ret;
     },
     apiCall: function(str) {
         app.recent.innerHTML = '';
-        document.body.className = 'loading-mask';
+        app.mask.className = 'loading-mask';
         var req = new XMLHttpRequest();
         req.addEventListener('load', function() {
             try {
@@ -375,7 +386,7 @@ var app = {
         });
         req.addEventListener('readystatechange', function(e) {
             if (this.readyState === XMLHttpRequest.DONE) {
-                document.body.className = '';
+                app.mask.className = '';
                 app.showHistory();
             }
         });
