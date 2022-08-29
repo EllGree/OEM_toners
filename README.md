@@ -20,9 +20,16 @@ HP Color LaserJet CP3525 (color printer):
 
 Tested on printer models:
  - HP LaserJet Pro M404
- - HP Color LaserJet CP3525
- - HP Photosmart C4272
  - HP LaserJet Pro MFP 3101
  - HP ENVY Inspire 7955e
+ - HP Color LaserJet CP3525
+ - HP Photosmart C4272
+ - HP DeskJet 2755e
  - Epson EcoTank ET-2800
  - Brother MFC-J1010DW
+ - Canon PIXMA G6020
+ - Fargo DTC 1250E Printer
+ - Lexmark CX725de
+ - Kyocera EcoSys
+ - Samsung ProXpress C2620 DW
+ - Xerox C315

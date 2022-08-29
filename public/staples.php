@@ -124,7 +124,7 @@ body {
 .details {font-size: 12px;margin-bottom:4px;}
 .details::before {
     content:'';
-    background: rgb(100, 100, 100);
+    background: rgb(200, 200, 200);
     display: inline-block;
     width: 12px;
     height: 12px;
@@ -273,6 +273,8 @@ var app = {
         app.results.innerHTML = app.lastSearch = app.input.value = '';
     },
     search: function(str) {
+        app.recent.innerHTML = '';
+        setTimeout(app.showHistory, 100);
         if (!str || app.lastSearch === str) return;
         app.input.value = app.lastSearch = str;
         var cache = localStorage.getItem(str);
@@ -305,7 +307,6 @@ var app = {
         else if (e.key === 'Escape') app.reset();
     },
     showData: function(data) {
-        app.showHistory();
         if (data.details.length < 1) {
             app.results.innerHTML = '<div class="subtitle">No standard toners were found for this model</div>';
             return;
