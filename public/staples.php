@@ -69,16 +69,16 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
 }
 .search button {
     position: fixed;
-    right: 18px;
-    top: 17px;
+    right: 17px;
+    top: 16px;
     text-indent: -999px;
     overflow: hidden;
     width: 40px;
     height: 33px;
     padding: 0;
     margin: 0;
-    border: 1px solid transparent;
-    border-radius: inherit;
+    border: none;
+    border-radius: 2px;
     background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
     cursor: pointer;
     opacity: 0.5;
@@ -94,11 +94,11 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
     max-height: 0;
     height: 0;
     position: fixed;
-    top: 49px;
+    top: 48px;
     right: 16px;
     left: 16px;
     overflow: hidden;
-    background-color: #ebebeb;
+    background-color: #f6f6f6;
     color: #010f54;
     border: none;
     box-shadow: none;
@@ -111,6 +111,8 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
     border: 1px solid #a8a8a8;
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
     overflow-y: auto;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
 }
 .search .recent .term, .search .recent .clear {
     padding: 8px; cursor: pointer;
@@ -120,7 +122,9 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
     color: navy;
 }
 .search .recent .clear {
-    float: right; font-size: 14px; margin-top: -18px;
+    float: right; 
+    font-size: 14px; 
+    margin-top: -26px;
 }
 
 #results { padding: 18px; margin-top: 51px; }
@@ -376,13 +380,13 @@ var app = {
         });
         // Post-processing:
         if (p.title.match(/High Yield/)) standard = false;
-        console.log(standard,{p},{ret});
+        console.log(standard ? 'standard' : 'non-standard', {p}, {ret});
         if (!standard) return null;
         if (ret.color.match('cyan/magenta/yellow')) ret.color = 'tri-color';
         return ret;
     },
     apiCall: function(str) {
-        app.recent.innerHTML = '';
+        app.results.innerHTML = app.recent.innerHTML = '';
         app.mask.className = 'loading';
         var req = new XMLHttpRequest();
         req.addEventListener('load', function() {
@@ -390,6 +394,7 @@ var app = {
                 var data = app.parse(JSON.parse(this.responseText));
                 app.storeData(data);
                 app.showData(data);
+                app.showHistory();
             } catch(e) {
                 alert('Failed to search: API wrong reply' + e);
                 console.log(this.responseText);
