@@ -33,3 +33,4 @@ Tested on printer models:
  - Kyocera EcoSys
  - Samsung ProXpress C2620 DW
  - Xerox C315
+ - OKI C330dn

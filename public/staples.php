@@ -141,56 +141,58 @@ body {
 }
 
 #mask {
-    display: none;
-}
-.loading-mask {
-  display: block !important;
+  display: none;
   position: absolute;
+  user-select: none;
   height: 100%;
   width: 100%;
-  background-color: #5c5c5c;
+  background-color: rgb(0 0 0 / 43%);
   bottom: 0;
   left: 0;
   right: 0;
   top: 0;
   z-index: 9999;
-  opacity: 0.5;
 }
-.loading-mask:before {
-  content: "";
-  background-color: rgba(0, 0, 0, 0);
-  border: 5px solid rgba(0, 183, 229, 0.9);
-  opacity: 0.9;
-  border-right: 5px solid rgba(0, 0, 0, 0);
-  border-left: 5px solid rgba(0, 0, 0, 0);
-  border-radius: 50px;
-  box-shadow: 0 0 35px #2187e7;
-  width: 50px;
-  height: 50px;
-  -moz-animation: spinPulse 1s infinite ease-in-out;
-  -webkit-animation: spinPulse 1s infinite linear;
-  margin: -25px 0 0 -25px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
+#mask.loading {
+  display: block;
 }
-.loading-mask:after {
-  content: "";
-  background-color: rgba(0, 0, 0, 0);
-  border: 5px solid rgba(0, 183, 229, 0.9);
-  opacity: 0.9;
-  border-left: 5px solid rgba(0, 0, 0, 0);
-  border-right: 5px solid rgba(0, 0, 0, 0);
-  border-radius: 50px;
-  box-shadow: 0 0 15px #2187e7;
-  width: 30px;
-  height: 30px;
-  -moz-animation: spinoffPulse 1s infinite linear;
-  -webkit-animation: spinoffPulse 1s infinite linear;
-  margin: -15px 0 0 -15px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
+#mask.loading:before {
+    content: "";
+    background-color: rgba(0, 0, 0, 0);
+    border: 5px solid rgb(255 243 16 / 90%);
+    opacity: 0.9;
+    border-right: 5px solid rgb(0 191 255 / 95%);
+    border-left: 5px solid rgb(255 12 230);
+    border-top: 5px solid black;
+    border-radius: 50px;
+    box-shadow: 0 0 3px 6px #ffffff;
+    width: 50px;
+    height: 50px;
+    -moz-animation: spinPulse 1s infinite ease-in-out;
+    -webkit-animation: spinPulse 1s infinite linear;
+    margin: -25px 0 0 -25px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+#mask.loading:after {
+    content: "";
+    background-color: rgba(0, 0, 0, 0);
+    border: 5px solid rgb(255 243 16 / 90%);
+    opacity: 0.9;
+    border-left: 5px solid rgb(255 12 230);
+    border-right: 5px solid rgb(0 191 255 / 95%);
+    border-top: 5px solid black;
+    border-radius: 50px;
+    box-shadow: 0 0 3px 2px #ffffff;
+    width: 30px;
+    height: 30px;
+    -moz-animation: spinoffPulse 1s infinite linear;
+    -webkit-animation: spinoffPulse 1s infinite linear;
+    margin: -15px 0 0 -15px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
 }
 @-moz-keyframes spinPulse {
   0% {
@@ -238,6 +240,7 @@ body {
     -webkit-transform: rotate(360deg);
   }
 }
+
 input[type=text]::-ms-clear { display: none; width : 0; height: 0; }
 input[type=text]::-ms-reveal { display: none; width : 0; height: 0; }
 input[type="search"]::-webkit-search-decoration,
@@ -373,7 +376,7 @@ var app = {
     },
     apiCall: function(str) {
         app.recent.innerHTML = '';
-        app.mask.className = 'loading-mask';
+        app.mask.className = 'loading';
         var req = new XMLHttpRequest();
         req.addEventListener('load', function() {
             try {
