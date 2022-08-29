@@ -283,7 +283,9 @@ var app = {
         app.recent.innerHTML = html;
     },
     storeData: function(data) {
-        if (data && data.name) localStorage.setItem(data.name, JSON.stringify(data));
+        if (data && data.name && data.details.length > 0) {
+            localStorage.setItem(data.name, JSON.stringify(data));
+        }
     },
     keyHandler: function(e) {
         if (e.innerText) {
@@ -295,6 +297,10 @@ var app = {
     },
     showData: function(data) {
         app.showHistory();
+        if (data.details.length < 1) {
+            app.results.innerHTML = '<div class="subtitle">No standard toners were found for this model</div>';
+            return;
+        }
         var html = '<div class="title">'+data.name+' ('+data.type+' printer)</div>';
         if(data.type === 'monochrome') {
             html += '<div class="subtitle">Standard Yield Toner Cost: $' + data.cost + '</div>';
@@ -347,7 +353,11 @@ var app = {
             else if (s.name === 'Ink or Toner Color' || s.name === 'True Color') ret.color = ret.color === 'black' ? s.value.toLowerCase() : ret.color;
             else if (s.name.match(/^(Page Yield|Yield per Cartridge)/) && ret.yeld === 0) ret.yeld = parseInt(s.value.replace(/[^0-9]+/g, ''));
         });
-        return standard ? ret : null;
+        // Post-processing:
+        if (p.title.match(/High Yield/)) standard = false;
+        if (!standard) return null;
+        if (ret.color.match('cyan/magenta/yellow')) ret.color = 'tri-color';
+        return ret;
     },
     apiCall: function(str) {
         app.recent.innerHTML = '';

@@ -22,3 +22,4 @@ Tested on printer models:
  - HP LaserJet Pro M404
  - HP Color LaserJet CP3525
  - HP Photosmart C4272
+ - HP LaserJet Pro MFP 3101
