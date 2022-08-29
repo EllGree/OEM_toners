@@ -41,57 +41,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OEM Ink / Toner Search</title>
     <style>
-body {
-    margin: 0;
-    font-family: "Helvetica", sans-serif;
-    font-size: 16px;
+body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
+.search {
+    position: fixed;
+    left: 16px;
+    top: 16px;
+    right: 16px;
+    border: none;
+    background-color: #ffffff;
 }
-.search {display: block;margin: 16px;margin-right: 8px;border: none;}
 .search input[type="search"] {
-  display: inline-block;
-  width: calc(100% - 5px);
-  border: solid 1px rgb(168, 168, 168);
-  border-radius: 2px;
-  background: transparent;
-  margin: 0;
-  padding: 7px 8px;
-  font-size: 16px;
-  color: inherit;
+    display: inline-block;
+    width: 100%;
+    border: solid 1px #a8a8a8;
+    border-radius: 2px;
+    margin: 0;
+    padding: 7px 8px;
+    font-size: inherit;
+    color: inherit;
 }
 .search input[type="search"]::placeholder {
-  color: rgb(168, 168, 168);
+  color: #a8a8a8;
 }
 .search input[type="search"]:focus {
   border-color: #1183d6;
   outline: none;
 }
-
 .search button {
-  text-indent: -999px;
-  overflow: hidden;
-  width: 40px;
-  height: 33px;
-  padding: 0;
-  margin: 0;
-  border: 1px solid transparent;
-  border-radius: inherit;
-  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
-  cursor: pointer;
-  opacity: 0.5;
-  transition: all 0.2s;
-  margin-left: -44px;
+    position: fixed;
+    right: 18px;
+    top: 17px;
+    text-indent: -999px;
+    overflow: hidden;
+    width: 40px;
+    height: 33px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid transparent;
+    border-radius: inherit;
+    background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s;
 }
-
 .search button:hover {
   opacity: 1;
 }
+
 .search .recent {
     transition: all 0.2s;
     opacity: 0;
     max-height: 0;
     height: 0;
-    width: calc(100% - 31px);
     position: fixed;
+    top: 49px;
+    right: 16px;
+    left: 16px;
     overflow: hidden;
     background-color: #ebebeb;
     color: #010f54;
@@ -99,13 +104,13 @@ body {
     box-shadow: none;
 }
 .search:hover .recent {
-    margin-top: -1px;
     z-index: 100;
     opacity: 1;
     height: auto;
-    max-height: calc(100% - 66px);
+    max-height: calc(100% - 56px);
     border: 1px solid #a8a8a8;
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+    overflow-y: auto;
 }
 .search .recent .term, .search .recent .clear {
     padding: 8px; cursor: pointer;
@@ -118,19 +123,21 @@ body {
     float: right; font-size: 14px; margin-top: -18px;
 }
 
-#results {display: block;padding: 18px;}
+#results { padding: 18px; margin-top: 51px; }
 .title {font-weight: bold;margin-bottom:6px;}
 .subtitle {font-weight: normal;margin-bottom:6px;}
 .details {font-size: 12px;margin-bottom:4px;}
 .details::before {
-    content:'';
+    content: '';
     background: rgb(200, 200, 200);
     display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 6px;
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
     margin-left: 6px;
     margin-right: 6px;
+    margin-top: 2px;
+    margin-bottom: -2px;
 }
 .details.black::before { background: rgb(0, 0, 0);}
 .details.cyan::before { background: rgb(0, 145, 145);}
