@@ -2,6 +2,7 @@
 Search a printer model and get standard OEM toner info (cost, color, yeld, etc.)
 
 Terms of Reference
+
 Using a product name (e.g. HP LaserJet Pro M404 or HP Color LaserJet CP3525) determine the following at Staples (Staples is a popular reseller of OEM toner and they maintain competitive prices):
  - Cost of Standard OEM Black toner ("Standard" meaning not high yield; often there is also pricing for High Yield toner cartridges)
  - Yield (number of expected print pages)
