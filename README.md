@@ -1,7 +1,7 @@
 # OEM_toners
 Search a printer model and get standard OEM toner info (cost, color, yeld, etc.)
 
-Terms of Reference
+# Terms of Reference
 
 Using a product name (e.g. HP LaserJet Pro M404 or HP Color LaserJet CP3525) determine the following at Staples (Staples is a popular reseller of OEM toner and they maintain competitive prices):
  - Cost of Standard OEM Black toner ("Standard" meaning not high yield; often there is also pricing for High Yield toner cartridges)
@@ -20,7 +20,7 @@ HP Color LaserJet CP3525 (color printer):
  - Cyan, Yellow, and Magenta standard yield cartridge cost: $311.89 (each color costs the same)
  - Color cartridge yield: 7,000 impressions (each color has the same yield)
 
-Tested on printer models:
+# List of printer models for testing:
  - HP LaserJet Pro M404
  - HP LaserJet Pro MFP 3101
  - HP ENVY Inspire 7955e
