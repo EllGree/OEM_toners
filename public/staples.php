@@ -16,13 +16,16 @@
      * To find a printer by name, the following code can be added to get the autocomplete list:
      * if(!empty($_GET['autocomlete'])) $uri = "https://www.staples.com/itfux/autocomplete?term={$term}";
      */
-    $header = ["Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
-        "Cache-Control: max-age=0", "Connection: keep-alive", "Keep-Alive: 300", "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7",
-        "Accept-Language: en-us,en;q=0.5","Pragma: "];
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $uri);
     curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.12011-10-16 20:23:00");
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, [
+        "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
+        "Cache-Control: max-age=0", 
+        "Connection: keep-alive", 
+        "Keep-Alive: 300", 
+        "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7",
+        "Accept-Language: en-us,en;q=0.5","Pragma: "]);
     curl_setopt($curl, CURLOPT_REFERER, "https://www.staples.com/Ink-Toner-Finder/cat_SC43");
     curl_setopt($curl, CURLOPT_ENCODING, "gzip,deflate");
     curl_setopt($curl, CURLOPT_AUTOREFERER, true);
@@ -32,7 +35,7 @@
     $txt = curl_exec($curl);
     $error = curl_error($curl);
     curl_close($curl);
-    die($error ? $error : ($txt ? $txt : "Failed"));
+    die($error ? $error : $txt);
 }
 ?><!DOCTYPE html>
 <html lang="en">
@@ -87,7 +90,6 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
 .search button:hover {
   opacity: 1;
 }
-
 .search .recent {
     transition: all 0.2s;
     opacity: 0;
@@ -126,7 +128,6 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
     font-size: 14px; 
     margin-top: -26px;
 }
-
 #results { padding: 18px; margin-top: 51px; }
 .title {font-weight: bold;margin-bottom:6px;}
 .subtitle {font-weight: normal;margin-bottom:6px;}
@@ -251,7 +252,6 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
     -webkit-transform: rotate(360deg);
   }
 }
-
 input[type=text]::-ms-clear { display: none; width : 0; height: 0; }
 input[type=text]::-ms-reveal { display: none; width : 0; height: 0; }
 input[type="search"]::-webkit-search-decoration,
