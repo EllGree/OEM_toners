@@ -35,7 +35,7 @@ class Part extends Model
 {
     use HasFactory;
 
-    public $fillable = ['name', 'price', 'yield'];
+    public $fillable = ['name', 'type', 'price', 'yield'];
 
     public function printer() {
         return $this->belongsTo(Printer::class);

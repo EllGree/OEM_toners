@@ -18,6 +18,7 @@ use App\Models\Printer;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
 Route::get('/printers', function() {
     $printers = Printer::all();
     return response(json_encode($printers))

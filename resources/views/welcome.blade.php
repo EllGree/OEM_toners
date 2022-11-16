@@ -345,7 +345,6 @@
                         </div>
                     </div>
                     -->
-
                     <div class="ml-4 text-center text-sm text-gray-500 sm:text-right sm:ml-0">
                         Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
                     </div>
@@ -354,7 +353,7 @@
         </div>
     </body>
     <script>
-        var app = {
+        const app = {
             lastSearch: '',
             init: function() {
                 app.input = document.querySelector(".search input");
@@ -409,7 +408,7 @@
                     app.results.innerHTML = '<div class="subtitle">No standard toners were found for this model</div>';
                     return;
                 }
-                var html = '<div class="title">'+data.name+' ('+data.type+' printer)</div>';
+                let html = '<div class="title">'+data.name+' ('+data.type+' printer)</div>';
                 if(data.type === 'monochrome') {
                     if(data.cost) html += '<div class="subtitle">Standard Yield Toner Cost: $' + data.cost + '</div>';
                     if(data.yeld) html += '<div class="subtitle">Black Toner Yield: ' + data.yeld + ' impressions</div>';
@@ -427,10 +426,10 @@
                 app.results.innerHTML = html;
             },
             parse: function(obj) {
-                var ret = {name:'',type:'monochrome',cost:0,yeld:0,ccost:0,cyeld:0,details:[]};
+                const ret = {name:'',type:'monochrome',cost:0,yeld:0,ccost:0,cyeld:0,details:[]};
                 if (obj.originalQuery) ret.name = obj.originalQuery;
                 obj.products.forEach(function(p) {
-                    var p = app.parseProduct(p);
+                    const p = app.parseProduct(p);
                     if (p && ret.details.filter(function(d) { return d.color === p.color;}).length < 1) {
                         ret.details.push(p);
                     }

@@ -17,6 +17,7 @@ return new class extends Migration
         Schema::create('parts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('type');
             $table->foreignIdFor(Printer::class);
             $table->unsignedFloat('price');
             $table->integer('yield')->unsigned();
