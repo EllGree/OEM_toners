@@ -28,7 +28,6 @@ class GetPrinterParts implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
      */
     public function handle()
     {
@@ -39,7 +38,7 @@ class GetPrinterParts implements ShouldQueue
         $printer->parts()->delete();
 
         // Get printer Parts for the given printer name
-        $json = $this->fetchPrinter($this->printerName);
+        $json = $this->fetchPrinter($printer->name);
         foreach ($this->parsePrinter($json) as $part) {
             $p = Part::factory(['name' => 'some name', 'printer_id' => $printer->getKey()])->create();
         }
@@ -54,6 +53,7 @@ class GetPrinterParts implements ShouldQueue
         // Update Printer updated_at attribute.
         $printer->touch();
         \DB::commit();
+        return $printer;
     }
 
     // Helpers:
