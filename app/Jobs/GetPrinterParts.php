@@ -4,12 +4,16 @@ namespace App\Jobs;
 
 use App\Models\Part;
 use App\Models\Printer;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use GuzzleHttp\Client;
+// use GuzzleHttp\Psr7\Request;
+
 
 class GetPrinterParts implements ShouldQueue
 {
@@ -58,32 +62,16 @@ class GetPrinterParts implements ShouldQueue
 
     // Helpers:
     private function fetchPrinter($term) {
-        $uri = "https://www.staples.com/searchux/common/api/v1/searchProxy?term={$term}&categoryId=12328";
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $uri);
-        curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.12011-10-16 20:23:00");
-        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-            "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
-            "Cache-Control: max-age=0",
-            "Connection: keep-alive",
-            "Keep-Alive: 300",
-            "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7",
-            "Accept-Language: en-us,en;q=0.5","Pragma: "]);
-        curl_setopt($curl, CURLOPT_REFERER, "https://www.staples.com/Ink-Toner-Finder/cat_SC43");
-        curl_setopt($curl, CURLOPT_ENCODING, "gzip,deflate");
-        curl_setopt($curl, CURLOPT_AUTOREFERER, true);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 30);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION,true);
-        $json = curl_exec($curl);
-        $error = curl_error($curl);
-        curl_close($curl);
-        return $json;
+        $client = new Client();
+        $response = $client->get('https://www.staples.com/searchux/common/api/v1/searchProxy?categoryId=12328&term='.urlencode($term));
+        return $response->getBody()->getContents();
     }
 
     private function parsePrinter($json) {
         $parts = [];
-        foreach(json_decode($json) as $part) {
+        $arr = json_decode($json);
+        dd($arr);
+        foreach($arr as $part) {
             $parts[] = $this->parsePart($part);
         }
         /* JS code to porting:
@@ -106,7 +94,6 @@ class GetPrinterParts implements ShouldQueue
             }
         });
          */
-        die(print_r($parts, 1));
         return $parts;
     }
 

@@ -29,10 +29,7 @@ class GetStaples extends Command
     public function handle()
     {
         $this->info($this->argument('model'));
-        // TODO get items from Staples.
-
         GetPrinterParts::dispatch($this->argument('model'));
-
         return Command::SUCCESS;
     }
 

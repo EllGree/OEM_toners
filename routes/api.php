@@ -27,8 +27,9 @@ Route::get('/printers', function() {
 });
 
 Route::post('/printers', function() {
-    if (!$printer = Printer::whereName($_POST['term'])->first()) {
-        $printer = (new GetPrinterParts($this->argument('model')))->handle();
+    $model = $_POST['term'];
+    if (!$printer = Printer::whereName($model)->first()) {
+        $printer = (new GetPrinterParts($model))->handle();
     }
     return response(json_encode($printer->getAttributes()))
         ->header('Content-type', 'application/json');
