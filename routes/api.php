@@ -4,6 +4,7 @@ use App\Jobs\GetPrinterParts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Printer;
+use App\Models\Part;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,11 +28,12 @@ Route::get('/printers', function() {
 });
 
 Route::post('/printers', function() {
-    $model = $_POST['term'];
-    if (!$printer = Printer::whereName($model)->first()) {
-        $printer = (new GetPrinterParts($model))->handle();
+    if (!$printer = Printer::whereName($_POST['term'])->first()) {
+        $printer = (new GetPrinterParts($_POST['term']))->handle();
     }
-    return response(json_encode($printer->getAttributes()))
+    $reply = json_decode(json_encode($printer->getAttributes()));
+    $reply->parts = $printer->parts()->get();
+    return response(json_encode($reply))
         ->header('Content-type', 'application/json');
     }
 );
