@@ -24,6 +24,9 @@
         @media only screen and (max-width: 1024px) {
             #printerParts td:nth-child(1), #printerParts th:nth-child(1) {padding-left:4px;max-width: 200px;}
         }
+        @media only screen and (max-width: 1024px) {
+            #printerParts {    font-size: 0.75rem;}
+        }
     </style>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
