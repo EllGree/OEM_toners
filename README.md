@@ -42,3 +42,7 @@ HP Color LaserJet CP3525 (color printer):
  - Samsung ProXpress C2620 DW
  - Xerox C315
  - OKI C330dn
+ - Canon PIXMA TS205
+ - HP CF350A
+ - Canon PIXMA TS3150
+ - HP CF210A

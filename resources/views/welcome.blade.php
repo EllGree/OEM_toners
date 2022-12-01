@@ -115,7 +115,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <input type="text" class="form-control" required
-                               aria-describedby="inputGroupPrepend"
+                               aria-describedby="inputGroupPrepend" autofocus
                                id="printer-name" placeholder="Input the printer name">
                         <div class="invalid-feedback">
                             Please enter the printer name.
@@ -202,6 +202,10 @@
                     .catch((error) => {
                         console.log({error});
                     });
+            });
+            // Autofocus in modal
+            $('.modal').on('shown.bs.modal', function() {
+                $(this).find('[autofocus]').focus();
             });
             // Fetch all the forms we want to apply custom Bootstrap validation styles to
             const forms = document.getElementsByClassName('needs-validation');
