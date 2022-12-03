@@ -16,7 +16,7 @@ body {font-family: 'Nunito', sans-serif;}
 #printers {}
 #printers th, #printers td {padding-left:1rem;padding-right:1rem;}
 */
-#printers th:nth-child(3), #printers td:nth-child(3) {text-align: right;}
+#printers th:nth-child(3), #printers td:nth-child(3), #printers td:nth-child(3) input {text-align: right;}
 #printers>tbody>tr {cursor: pointer;}
 #printers>tbody>tr>td {transition: background-color 0.2s ease;}
 #printers>tbody>tr:hover>td {background-color: #99bfe6;}
