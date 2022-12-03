@@ -54,6 +54,11 @@ const app = {
                 form.classList.add('was-validated');
             }, false);
         });
+        $('#addPrintrsTabs a').on('click', function (e) {
+            e.preventDefault()
+            $(this).tab('show');
+            $(this).find('[autofocus]').focus();
+        });
     },
     rowClick: (e) => {
         let t = e.target;
@@ -85,7 +90,7 @@ const app = {
         setTimeout(() => $("#alert").hide(), 2000);
     },
     addPrinterRow: (name) => {
-        const tmp = name.split(' '), mnf = tmp.shift(), mdl = tmp.join(' ');
+        const tmp = app.strip(name).split(' '), mnf = tmp.shift(), mdl = tmp.join(' ');
         $("#printers>tbody").append('<tr data-name="'+name+'"><td>'+mnf+'</td><td>'+mdl+'</td><td>5%</td></tr>');
         const tab = $('#printers');
         if(tab.length) $.tablesorter.destroy(tab);
@@ -93,20 +98,28 @@ const app = {
         $('#printers>tbody>tr').click(app.rowClick);
     },
     addPrinter: (name) => {
-        const n = name.toString().trim().replace(/[^a-z0-9 -]+/gi, " ");
+        const n = app.strip(name);
         if($("#printers>tbody>tr[data-name='"+n+"']").length) {
             app.alert("The printer "+n+" is already in list.");
-            return $('#add-printer-modal').modal('hide');
+            $('#add-printer-modal').modal('hide');
+            return;
         }
         app.api.post('/printers', {term:n})
             .then(() => app.addPrinterRow(n))
             .catch((error) => app.alert("Failed to add printer "+n))
             .finally(() => $('#add-printer-modal').modal('hide'));
     },
+    strip: (s) => s.toString().trim().replace(/[^a-z0-9 -]+/gi, " "),
     submitListeners: {
         "add-printer-form": function(event) {
+            const val = app.strip(event.target[0].value);
             event.preventDefault();
-            app.addPrinter(event.target[1].value);
+            if(val) app.addPrinter(val);
+        },
+        "add-printers-form": function(event) {
+            const val = event.target[0].value.trim();
+            event.preventDefault();
+            if(val) val.split('\n').forEach((n) => app.addPrinter(n));
         }
     },
     download_csv: () => {

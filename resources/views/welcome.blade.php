@@ -11,6 +11,7 @@
     <div class="alert alert-warning alert-dismissible hidden" id="alert">
         <span></span>
     </div>
+
     <table id="printers" class="tablesorter-blue">
         <thead>
             <tr>
@@ -31,43 +32,67 @@
     </table>
     <div style="margin-top:16px">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-printer-modal">
-            ＋ Add printer
+            ＋ Add printer(s)
         </button>
     </div>
 </div>
 
 <!-- Modal Add Printer -->
 <div class="modal fade" id="add-printer-modal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-    <form class="needs-validation" novalidate id="add-printer-form">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="ModalLabel">Add new printer</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <input type="text" class="form-control" required
-                               aria-describedby="inputGroupPrepend" autofocus
-                               id="printer-name" placeholder="Input the printer name">
-                        <div class="invalid-feedback">
-                            Please enter the printer name.
-                        </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel">Add new printer(s)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs" id="addPrintrsTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="single-tab" data-toggle="tab" href="#single" role="tab" aria-controls="single" aria-selected="true">Single Printer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="bulk-tab" data-toggle="tab" href="#bulk" role="tab" aria-controls="bulk" aria-selected="false">Bulk Import</a>
+                    </li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content" style="padding-top:12px;">
+                    <div class="tab-pane active" id="single" role="tabpanel" aria-labelledby="single-tab">
+                        <form class="needs-validation" novalidate id="add-printer-form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" required
+                                       aria-describedby="inputGroupPrepend" autofocus
+                                       id="printer-name" placeholder="Input the printer name">
+                                <div class="invalid-feedback">Please enter the printer name.</div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Add printer</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane hidden" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
+                        <form class="needs-validation" novalidate id="add-printers-form">
+                            <div class="form-group">
+                                <textarea class="form-control" required
+                                       aria-describedby="inputGroupPrepend" autofocus
+                                          id="printer-list"></textarea>
+                                <div class="invalid-feedback">Please enter bulk printers list.</div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Add printers</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        Add printer
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
-    </form>
+    </div>
 </div>
 <!-- Modal Printer Details -->
 <div class="modal fade bd-example-modal-lg" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
