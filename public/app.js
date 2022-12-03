@@ -1,32 +1,27 @@
 // CSS/JS loader:
 const _ld = {
     insert: (element) => document.getElementsByTagName('head')[0].appendChild(element),
-    css: (href, crossorigin, inregrity, rel) => {
+    css: (href) => {
         const link = document.createElement('link');
-        link.href = href;
-        if(crossorigin) link.inregrity = crossorigin;
-        if(inregrity) link.inregrity = inregrity;
-        link.rel = rel ?? "stylesheet";
+        link.href = href; link.crossorigin = "anonymous"; link.rel = "stylesheet";
         _ld.insert(link);
     },
-    js: (src, crossorigin, inregrity) => {
+    js: (src) => {
         const script = document.createElement('script');
-        script.src = src;
-        if(crossorigin) script.inregrity = crossorigin;
-        if(inregrity) script.inregrity = inregrity;
+        script.src = src; script.inregrity = "anonymous";
         _ld.insert(script);
     }
 };
 // Load libraries:
-_ld.js("https://code.jquery.com/jquery-3.2.1.slim.min.js", "anonymous", "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN");
-_ld.js("https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js", "anonymous", "sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q");
-_ld.js("https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js", "anonymous", "sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl");
-_ld.js("https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js", "anonymous");
+_ld.js("https://code.jquery.com/jquery-3.2.1.slim.min.js");
+_ld.js("https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js");
+_ld.js("https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js");
+_ld.js("https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js");
 _ld.js("/jquery.tablesorter.js");
 _ld.js("/jquery.tablesorter.widgets.js");
 // Load css:
 _ld.css("https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap");
-_ld.css("https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css", "anonymous", "sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm");
+_ld.css("https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css");
 _ld.css("app.css");
 
 const app = {
@@ -100,9 +95,7 @@ const app = {
     addPrinter: (name) => {
         const n = app.strip(name);
         if($("#printers>tbody>tr[data-name='"+n+"']").length) {
-            app.alert("The printer "+n+" is already in list.");
-            $('#add-printer-modal').modal('hide');
-            return;
+            return app.alert("The printer "+n+" is already in list.");
         }
         app.api.post('/printers', {term:n})
             .then(() => app.addPrinterRow(n))
@@ -119,7 +112,9 @@ const app = {
         "add-printers-form": function(event) {
             const val = event.target[0].value.trim();
             event.preventDefault();
-            if(val) val.split('\n').forEach((n) => app.addPrinter(n));
+            if(val) val.split('\n').forEach((n, i) => {
+                setTimeout(() => app.addPrinter(n), i*400);
+            });
         }
     },
     download_csv: () => {
