@@ -71,10 +71,11 @@
                     <div class="tab-pane hidden" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
                         <form class="needs-validation" novalidate id="add-printers-form">
                             <div class="form-group">
+                                Please enter a list of no more than 50 printer names to import.
                                 <textarea class="form-control" requiredaria-label="Printer names"
                                           aria-describedby="inputGroupPrepend"
                                           id="printer-list"></textarea>
-                                <div class="invalid-feedback">Please enter bulk printers list.</div>
+                                <div class="invalid-feedback">Please enter a list of printers.</div>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Add printers</button>

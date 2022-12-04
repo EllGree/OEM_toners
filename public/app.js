@@ -172,7 +172,14 @@ const app = {
         "add-printers-form": function(event) {
             const val = event.target[0].value.toString().trim();
             event.preventDefault();
-            if(val) val.split('\n').forEach((n, i) => {
+            let lst = val.split('\n');
+            if(lst.length>50) {
+                lst = lst.slice(0, 50);
+                app.alert("The list of more than 50 models is shortened.");
+            } else if(lst.length<1) {
+                return;
+            }
+            lst.forEach((n, i) => {
                 setTimeout(() => app.addPrinter(n), i*450);
             });
         }

@@ -149,8 +149,8 @@ class GetPrinterParts implements ShouldQueue
             $type = 'waste toner';
             $color = 'not applicable';
         }
-        if ($color === 'unknown' || empty($color)) {
-            $color = 'not applicable';
+        if ($color === 'unknown' || $color === 'not applicable' || empty($color)) {
+            $color = 'n/a';
         }
         return compact(['name', 'type', 'color', 'price', 'yield']);
     }
