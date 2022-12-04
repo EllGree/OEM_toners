@@ -133,6 +133,27 @@ const app = {
                 app.alert(msg);
             })
     },
+    updatePrinterRow: () => {
+        if(!app.LastPrinter) return;
+        const row = $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]');
+        if(row.length<1) return;
+        row.children()[0].innerText = app.LastPrinter.manufacturer;
+        row.children()[1].innerText = app.LastPrinter.model;
+        row.children()[2].innerText = app.LastPrinter.coverage + '%';
+        row[0].dataset.name = app.LastPrinter.name;
+    },
+    updatePrinter: () => {
+        if(!app.LastPrinter) return;
+        app.api.post('/printer/' + app.LastPrinter.id, app.LastPrinter)
+            .then(app.updatePrinterRow).catch((error) => {
+            console.log({error});
+            const msg = "Failed to update " + app.LastPrinter.name +
+                (error.message ? '<br>' +error.message : '') +
+                (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
+                    (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
+            app.alert(msg);
+        }).finally(() => $('#detailsModal').modal('hide'));
+    },
     deletePrinter: () => {
         if(!app.LastPrinter) return;
         $('#detailsModal').modal('hide');
@@ -159,10 +180,11 @@ const app = {
                 parseInt(event.target[2].value) == parseInt(app.LastPrinter.coverage)) {
                 return app.alert("Nothing to update here.");
             }
-            console.log(event.target[0].value, app.LastPrinter.manufacturer);
-            console.log(event.target[1].value, app.LastPrinter.model);
-            console.log(parseInt(event.target[2].value), parseInt(app.LastPrinter.coverage));
-            return app.alert('Failed to update: '+app.LastPrinter.name+'<br>Not yet implemented.');
+            app.LastPrinter.manufacturer = event.target[0].value;
+            app.LastPrinter.model = event.target[1].value;
+            app.LastPrinter.coverage = event.target[2].value;
+            app.LastPrinter.name = app.LastPrinter.manufacturer + ' ' + app.LastPrinter.model;
+            app.updatePrinter();
         },
         "add-printer-form": function(event) {
             const val = event.target[0].value.toString().trim();

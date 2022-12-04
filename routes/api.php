@@ -36,6 +36,17 @@ Route::get('/printer/{id}', function($id) {
     return response(json_encode($reply))->header('Content-type', 'application/json');
 });
 
+Route::post('/printer/{id}', function($id) {
+    $printer = Printer::whereId($id)->first();
+    $data = [];
+    if(!empty($_POST['manufacturer']) && !empty($_POST['model'])) $_POST['name'] = $_POST['manufacturer'] . ' ' . $_POST['model'];
+    if(!empty($_POST['name']))  $data['name'] = $_POST['name'];
+    if(!empty($_POST['coverage']))  $data['coverage'] = $_POST['coverage'];
+    if(count($data)) $printer->update($data);
+    $reply = json_decode(json_encode($printer->getAttributes()));
+    return response(json_encode($reply))->header('Content-type', 'application/json');
+});
+
 Route::delete('/printer/{id}', function($id) {
     $printer = Printer::whereId($id)->first();
     if(!$printer) return;
