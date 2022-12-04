@@ -141,6 +141,7 @@ const app = {
         row.children()[1].innerText = app.LastPrinter.model;
         row.children()[2].innerText = app.LastPrinter.coverage + '%';
         row[0].dataset.name = app.LastPrinter.name;
+        $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
     },
     updatePrinter: () => {
         if(!app.LastPrinter) return;
