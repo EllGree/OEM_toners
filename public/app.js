@@ -26,7 +26,7 @@ _ld.css("app.css");
 
 const app = {
     init: () => {
-        app.manufacturers = 'HP,Brother,Canon,Dell,Epson,iHome,Kodak,Kyocera,Lexmark,OKI,Polaroid,Ricoh,Samsung,Sharp,Xerox'
+        app.manufacturers = 'HP,Brother,Canon,Dell,Epson,iHome,Kodak,Kyocera,Lexmark,OKI,Polaroid,Panasonic,Ricoh,Samsung,Sharp,Xerox'
             .split(',');
         app.api = axios.create({
             headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -99,8 +99,17 @@ const app = {
             });
     },
     getModel: (name) => {
-        const n = name.toString().replace(/[^a-z0-9 -]+/gi, " ").trim();
-        return n.substring(app.getBrand(name).length).trim();
+        const brand = app.getBrand(name), n = name.toString()
+            .replace(/[^a-z0-9 -]+/gi, " ")
+            .trim()
+            .substring(brand.length).trim();
+        // @@Know how: remove words "colour", "laser", "printer" in Dell models
+        if(brand == 'Dell') return n.replace(/(colour|laser|printer) /i,'');
+        // @@Know how: remove postfix DWF in Epson models
+        if(brand == 'Epson') return n.replace(/DWF$/i,'');
+        // @@Know how: remove prefix ADS- in Brother models
+        if(brand == 'Brother') return n.replace(/^ADS-/i,'').replace(/^MFC- /, 'MFC-');
+        return n;
     },
     getBrand: (name) => {
         const found = app.manufacturers.filter((brand) => {

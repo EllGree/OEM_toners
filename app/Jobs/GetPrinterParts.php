@@ -145,6 +145,7 @@ class GetPrinterParts implements ShouldQueue
             else if (str_contains(strtolower($name), 'unit')) $type = 'unit';
             else if (str_contains(strtolower($name), 'ribbon')) $type = 'ribbon';
         }
+        $type = preg_replace('/(printer|print) /', '', $type);
         if (str_contains(strtolower($name), 'waste toner')) {
             $type = 'waste toner';
             $color = 'not applicable';

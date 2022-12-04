@@ -11,7 +11,7 @@
     <table id="printers" class="tablesorter-blue">
         <thead>
             <tr>
-                <th class="filter-select filter-exact" data-placeholder="Show all">Manufacturer</th>
+                <th class="filter-select filter-exact" data-placeholder="All Brands">Manufacturer</th>
                 <th>Model</th>
                 <th>Coverage</th>
             </tr>
@@ -157,8 +157,8 @@
                             <thead>
                             <tr>
                                 <th>Name</th>
-                                <th class="filter-select filter-exact" data-placeholder="Show all">Type</th>
-                                <th class="filter-select filter-exact" data-placeholder="Show all">Color</th>
+                                <th class="filter-select filter-exact" data-placeholder="All">Type</th>
+                                <th class="filter-select filter-exact" data-placeholder="All">Color</th>
                                 <th>Yield</th>
                                 <th>Price</th>
                             </tr>
