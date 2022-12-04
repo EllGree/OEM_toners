@@ -11,7 +11,7 @@ body {font-family: 'Nunito', sans-serif;}
 #printerParts thead {background-color: #6c7ae0; color: white;height: 34px;}
 #printerParts tbody tr td {border: solid 1px #d8d8d8;border-left: 0;border-right: 0;}
 #printerParts tbody tr:nth-child(2n) {background-color: whitesmoke;}
-
+#alert {position: fixed;top:12px;left: 12px;width: calc(100% - 40px);z-index: 10001;box-shadow: 1px 7px 25px rgb(49 0 0 / 62%);}
 /*
 #printers {}
 #printers th, #printers td {padding-left:1rem;padding-right:1rem;}
@@ -50,6 +50,8 @@ body {font-family: 'Nunito', sans-serif;}
 .tablesorter-blue th,
 .tablesorter-blue thead td {
     font: 12px/18px Arial, Sans-serif;
+    height: 32px;
+    line-height: 32px;
     font-weight: bold;
     color: #000;
     background-color: #99bfe6;
@@ -73,9 +75,13 @@ body {font-family: 'Nunito', sans-serif;}
     /* background-image: url(images/black-unsorted.gif); */
     background-repeat: no-repeat;
     background-position: center right;
-    padding: 4px 18px 4px 4px;
+    padding: 4px 18px 4px 10px;
     white-space: normal;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.tablesorter-blue .tablesorter-header:hover {
+    background-color: #4f99e8;
 }
 .tablesorter-blue .headerSortUp,
 .tablesorter-blue .tablesorter-headerSortUp,

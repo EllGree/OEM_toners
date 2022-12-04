@@ -26,6 +26,8 @@ _ld.css("app.css");
 
 const app = {
     init: () => {
+        app.manufacturers = 'HP,Brother,Canon,Dell,Epson,iHome,Kodak,Kyocera,Lexmark,OKI,Polaroid,Ricoh,Samsung,Sharp,Xerox'
+            .split(',');
         app.api = axios.create({
             headers: { "content-type": "application/x-www-form-urlencoded" },
             baseURL: window.location.origin + "/api"
@@ -55,9 +57,25 @@ const app = {
             $(this).find('[autofocus]').focus();
         });
     },
+    alert: (text) => {
+        if(!$("#alert>span").length) return alert(text);
+        $("#alert>span").html(text);
+        $("#alert").show();
+        setTimeout(() => $("#alert").hide(), 2500);
+    },
     rowClick: (e) => {
         let t = e.target;
         while (t.tagName !== 'TR') t = t.parentElement;
+        app.LastPrinter = {
+            id:t.dataset.id,
+            name:t.dataset.name,
+            coverage:parseInt(t.children[2].innerText),
+            manufacturer:t.children[0].innerText,
+            model:t.children[1].innerText
+        };
+        $('#info-manufacturer').val(app.LastPrinter.manufacturer);
+        $('#info-model').val(app.LastPrinter.model);
+        $('#info-coverage').val(app.LastPrinter.coverage);
         app.api.post("/printers", {term:t.dataset.name})
             .then((reply) => {
                 let html = '';
@@ -76,44 +94,72 @@ const app = {
             })
             .catch((error) => {
                 console.log({error});
+                app.alert("Failed to fetch details for printer. "+(error.message??''));
             });
     },
-    alert: (text) => {
-        if($("#alert>span").length) $("#alert>span").html(text);
-        else return alert(text);
-        $("#alert").show('medium');
-        setTimeout(() => $("#alert").hide(), 2000);
+    getModel: (name) => {
+        const n = name.toString().replace(/[^a-z0-9 -]+/gi, " ").trim();
+        return n.substring(app.getBrand(name).length).trim();
     },
-    addPrinterRow: (name) => {
-        const tmp = app.strip(name).split(' '), mnf = tmp.shift(), mdl = tmp.join(' ');
-        $("#printers>tbody").append('<tr data-name="'+name+'"><td>'+mnf+'</td><td>'+mdl+'</td><td>5%</td></tr>');
-        const tab = $('#printers');
-        if(tab.length) $.tablesorter.destroy(tab);
-        app.tablesorter("#printers");
-        $('#printers>tbody>tr').click(app.rowClick);
+    getBrand: (name) => {
+        const found = app.manufacturers.filter((brand) => {
+            const re = new RegExp('^'+brand, 'i');
+            return !!name.trim().match(re);
+        });
+        return found.length ? found[0] : '';
+    },
+    addPrinterRow: (name, id, coverage) => {
+        const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
+        const $row = $('<tr data-name="'+n+'" data-id="'+id+'"><td>'+brand+'</td><td>'+model+'</td><td>'+(coverage ?? '5')+'%</td></tr>');
+        const callback = () => $('#printers>tbody>tr[data-id="'+id+'"]').click(app.rowClick);
+        $( '#printers' ).find('tbody').append($row).trigger('addRows', [$row, true, callback]);
     },
     addPrinter: (name) => {
-        const n = app.strip(name);
-        if($("#printers>tbody>tr[data-name='"+n+"']").length) {
-            return app.alert("The printer "+n+" is already in list.");
-        }
+        const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
+        if(!brand) return app.alert("Failed to add "+n+"<br>Unknown printer manufacturer.");
+        if(!model) return app.alert("Failed to add "+n+"<br>Unknown printer model.");
+        if(model.length>50) return app.alert("Failed to add "+n+"<br>Model name is too long.");
+        if($("#printers>tbody>tr[data-name='"+n+"']").length) return app.alert("The printer "+n+" is already in list.");
         app.api.post('/printers', {term:n})
-            .then(() => app.addPrinterRow(n))
-            .catch((error) => app.alert("Failed to add printer "+n))
+            .then((r) => app.addPrinterRow(r.data.name, r.data.id))
+            .catch((error) => {
+                console.log({error});
+                const msg = "Failed to add " + n +
+                    (error.message ? '<br>' +error.message : '') +
+                    (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
+                        (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
+                app.alert(msg);
+            })
             .finally(() => $('#add-printer-modal').modal('hide'));
     },
-    strip: (s) => s.toString().trim().replace(/[^a-z0-9 -]+/gi, " "),
+    delete: () => {
+        return app.alert('Failed to delete: '+app.LastPrinter.name+'<br>Not yet implemented.');
+    },
     submitListeners: {
+        "update-printer-form": function(event) {
+            const form = event.target;
+            event.preventDefault();
+            console.dir(form);
+            if (event.target[0].value == app.LastPrinter.manufacturer &&
+                event.target[1].value == app.LastPrinter.model &&
+                parseInt(event.target[2].value) == parseInt(app.LastPrinter.coverage)) {
+                return app.alert("Nothing to update here.");
+            }
+            console.log(event.target[0].value, app.LastPrinter.manufacturer);
+            console.log(event.target[1].value, app.LastPrinter.model);
+            console.log(parseInt(event.target[2].value), parseInt(app.LastPrinter.coverage));
+            return app.alert('Failed to update: '+app.LastPrinter.name+'<br>Not yet implemented.');
+        },
         "add-printer-form": function(event) {
-            const val = app.strip(event.target[0].value);
+            const val = event.target[0].value.toString().trim();
             event.preventDefault();
             if(val) app.addPrinter(val);
         },
         "add-printers-form": function(event) {
-            const val = event.target[0].value.trim();
+            const val = event.target[0].value.toString().trim();
             event.preventDefault();
             if(val) val.split('\n').forEach((n, i) => {
-                setTimeout(() => app.addPrinter(n), i*400);
+                setTimeout(() => app.addPrinter(n), i*450);
             });
         }
     },
@@ -135,6 +181,7 @@ const app = {
         const sel = selector ?? 'table';
         const t = $(sel).tablesorter({
             theme : 'blue',
+            // headers: {'.nosort':{sorter:false}},
             // this is the default setting
             cssChildRow : "tablesorter-childRow",
             // initialize zebra and filter widgets
@@ -154,11 +201,9 @@ const app = {
         t.delegate( '.toggle', 'click' ,function() {
             // use "nextUntil" to toggle multiple child rows
             // toggle table cells instead of the row
-            $( this )
-                .closest( 'tr' )
+            $( this ).closest( 'tr' )
                 .nextUntil( 'tr.tablesorter-hasChildRow' )
-                .find( 'td' )
-                .toggleClass( 'hidden' );
+                .find( 'td' ).toggleClass( 'hidden' );
             return false;
         });
         $('button.toggle-combined').click( function() {

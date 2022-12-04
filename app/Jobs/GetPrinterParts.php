@@ -131,7 +131,7 @@ class GetPrinterParts implements ShouldQueue
                 }
             }
         }
-        $yield = intval($yield);
+        $yield = abs(intval($yield));
         // Post-process color
         if (str_contains(strtolower($name), 'tri-color') || (str_contains(strtolower($name), 'cyan') &&
             str_contains(strtolower($name), 'magenta') &&
