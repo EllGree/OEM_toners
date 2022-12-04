@@ -25,9 +25,9 @@ _ld.css("https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css
 _ld.css("app.css");
 
 const app = {
+    manufacturers: 'HP,IBM,Advent,Apple,Brother,Canon,Compaq,Dell,Epson,iHome,Kodak,Kyocera,Lexmark,OKI,Polaroid,Panasonic,Pantum,Philips,Ricoh,Pitney Bowes,Samsung,Sharp,Utax,Xerox',
     init: () => {
-        app.manufacturers = 'HP,Brother,Canon,Dell,Epson,iHome,Kodak,Kyocera,Lexmark,OKI,Polaroid,Panasonic,Ricoh,Samsung,Sharp,Xerox'
-            .split(',');
+        app.manufacturers = app.manufacturers.split(',');
         app.api = axios.create({
             headers: { "content-type": "application/x-www-form-urlencoded" },
             baseURL: window.location.origin + "/api"
