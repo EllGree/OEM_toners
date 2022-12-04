@@ -56,6 +56,7 @@ const app = {
             $(this).tab('show');
             $(this).find('[autofocus]').focus();
         });
+        $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
     },
     alert: (text) => {
         if(!$("#alert>span").length) return alert(text);
@@ -76,7 +77,7 @@ const app = {
         $('#info-manufacturer').val(app.LastPrinter.manufacturer);
         $('#info-model').val(app.LastPrinter.model);
         $('#info-coverage').val(app.LastPrinter.coverage);
-        app.api.post("/printers", {term:t.dataset.name})
+        app.api.get("/printer/"+app.LastPrinter.id)
             .then((reply) => {
                 let html = '';
                 app.lastReply = reply.data;
@@ -120,6 +121,7 @@ const app = {
         if(!model) return app.alert("Failed to add "+n+"<br>Unknown printer model.");
         if(model.length>50) return app.alert("Failed to add "+n+"<br>Model name is too long.");
         if($("#printers>tbody>tr[data-name='"+n+"']").length) return app.alert("The printer "+n+" is already in list.");
+        $('#add-printer-modal').modal('hide');
         app.api.post('/printers', {term:n})
             .then((r) => app.addPrinterRow(r.data.name, r.data.id))
             .catch((error) => {
@@ -130,10 +132,22 @@ const app = {
                         (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
                 app.alert(msg);
             })
-            .finally(() => $('#add-printer-modal').modal('hide'));
     },
-    delete: () => {
-        return app.alert('Failed to delete: '+app.LastPrinter.name+'<br>Not yet implemented.');
+    deletePrinter: () => {
+        if(!app.LastPrinter) return;
+        $('#detailsModal').modal('hide');
+        app.api.delete('/printer/' + app.LastPrinter.id)
+            .then(() => {
+                $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]').remove();
+                $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
+            }).catch((error) => {
+                console.log({error});
+                const msg = "Failed to delete " + app.LastPrinter.name +
+                    (error.message ? '<br>' +error.message : '') +
+                    (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
+                        (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
+                app.alert(msg);
+            }).finally(() => (app.LastPrinter = false));
     },
     submitListeners: {
         "update-printer-form": function(event) {

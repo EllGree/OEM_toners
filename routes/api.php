@@ -27,6 +27,22 @@ Route::get('/printers', function() {
         ->header('Content-type', 'application/json');
 });
 
+Route::get('/printer/{id}', function($id) {
+    $printer = Printer::whereId($id)->first();
+    if(!$printer) return;
+    $parts = $printer->parts()->get();
+    $reply = json_decode(json_encode($printer->getAttributes()));
+    $reply->parts = $parts;
+    return response(json_encode($reply))->header('Content-type', 'application/json');
+});
+
+Route::delete('/printer/{id}', function($id) {
+    $printer = Printer::whereId($id)->first();
+    if(!$printer) return;
+    foreach ($printer->parts()->get() as $part) $part->delete();
+    $printer->delete();
+});
+
 Route::post('/printers', function() {
     if (!$printer = Printer::whereName($_POST['term'])->first()) {
         $printer = (new GetPrinterParts($_POST['term']))->handle();

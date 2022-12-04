@@ -147,7 +147,7 @@
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Update printer</button>
-                                <button type="button" onclick="app.delete()" class="btn btn-danger" name="delete">Delete printer</button>
+                                <button type="button" onclick="app.deletePrinter()" class="btn btn-danger" name="delete">Delete printer</button>
                             </div>
                         </form>
                     </div>
