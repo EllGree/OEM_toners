@@ -21,7 +21,7 @@ body {font-family: 'Nunito', sans-serif;}
 
 #printers th:first-child, #printers td:first-child {width:129px;}
 #printers th:last-child, #printers td:last-child, #printers td:last-child input {text-align: right;}
-#printers th:last-child, #printers td:last-child {max-width: 100px;}
+#printers th:last-child, #printers td:last-child {width: 100px;}
 #printers thead {position: sticky;top: -1px;box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);}
 
 #printers>tbody>tr {cursor: pointer;}
@@ -31,7 +31,10 @@ body {font-family: 'Nunito', sans-serif;}
 #detailsModal .modal-dialog {max-width: calc(100% - 22px);min-width:690px;}
 .fade {background-color: rgb(0 0 0 / 50%);}
 @media only screen and (max-width: 1024px) {
-    #printerParts td:nth-child(1), #printerParts th:nth-child(1) {padding-left:4px;max-width: 200px;}
+    #printerParts td:nth-child(1), #printerParts th:nth-child(1) {padding-left:4px;max-width: 374px;}
+    #printerParts th:nth-child(2), #printerParts th:nth-child(3) { width: 82px; }
+    #printerParts th:nth-child(4), #printerParts th:nth-child(5) { width: 60px; }
+{width: 82px;}
 }
 @media only screen and (max-width: 1024px) {
     #printerParts {    font-size: 0.75rem;}
