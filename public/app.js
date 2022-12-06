@@ -1,40 +1,16 @@
-// CSS/JS loader:
-const _ld = {
-    insert: (element) => document.getElementsByTagName('head')[0].appendChild(element),
-    css: (href) => {
-        const link = document.createElement('link');
-        link.href = href; link.crossorigin = "anonymous"; link.rel = "stylesheet";
-        _ld.insert(link);
-    },
-    js: (src) => {
-        const script = document.createElement('script');
-        script.src = src; script.inregrity = "anonymous";
-        _ld.insert(script);
-    }
-};
-// Load libraries:
-_ld.js("https://code.jquery.com/jquery-3.2.1.slim.min.js");
-_ld.js("https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js");
-_ld.js("https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js");
-_ld.js("https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js");
-_ld.js("/jquery.tablesorter.js");
-_ld.js("/jquery.tablesorter.widgets.js");
-// Load css:
-_ld.css("https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap");
-_ld.css("https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css");
-_ld.css("app.css");
-
 const app = {
     manufacturers: 'HP,IBM,Advent,Apple,Brother,Canon,Compaq,Dell,Epson,iHome,Kodak,Kyocera,Lexmark,OKI,Polaroid,Panasonic,Pantum,Philips,Ricoh,Pitney Bowes,Samsung,Sharp,Utax,Xerox',
     init: () => {
+        if(typeof $ !== 'function' || typeof axios !== 'function') {
+            return setTimeout(app.init, 100);
+        }
         app.manufacturers = app.manufacturers.split(',');
         app.api = axios.create({
             headers: { "content-type": "application/x-www-form-urlencoded" },
-            baseURL: window.location.origin + "/api"
+            baseURL: window.location.origin + "/api",
         });
         app.tablesorter('#printers');
         $('#printers>tbody>tr').click(app.rowClick);
-        $('#app')[0].style.display='block';
         // Autofocus in modal
         $('.modal').on('shown.bs.modal', function() {$(this).find('[autofocus]').focus();});
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
@@ -52,12 +28,15 @@ const app = {
             }, false);
         });
         $('#addPrintrsTabs a').on('click', function (e) {
-            e.preventDefault()
+            e.preventDefault();
             $(this).tab('show');
             $(this).find('[autofocus]').focus();
         });
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
+        $('#app')[0].style.display='block';
+        app.mask(false);
     },
+    mask: (on) => $('#mask')[0].classList[on?'add':'remove']('loading'),
     alert: (text) => {
         if(!$("#alert>span").length) return alert(text);
         $("#alert>span").html(text);
@@ -77,6 +56,7 @@ const app = {
         $('#info-manufacturer').val(app.LastPrinter.manufacturer);
         $('#info-model').val(app.LastPrinter.model);
         $('#info-coverage').val(app.LastPrinter.coverage);
+        app.mask(1);
         app.api.get("/printer/"+app.LastPrinter.id)
             .then((reply) => {
                 let html = '';
@@ -92,11 +72,10 @@ const app = {
                 $('#printerPartsBody').html(html);
                 app.tablesorter('#printerParts');
                 $('#detailsModal').modal('show');
-            })
-            .catch((error) => {
+            }).catch((error) => {
                 console.log({error});
                 app.alert("Failed to fetch details for printer. "+(error.message??''));
-            });
+            }).finally(()=>app.mask(0));
     },
     getModel: (name) => {
         const brand = app.getBrand(name), n = name.toString()
@@ -131,6 +110,7 @@ const app = {
         if(model.length>50) return app.alert("Failed to add "+n+"<br>Model name is too long.");
         if($("#printers>tbody>tr[data-name='"+n+"']").length) return app.alert("The printer "+n+" is already in list.");
         $('#add-printer-modal').modal('hide');
+        app.mask(1);
         app.api.post('/printers', {term:n})
             .then((r) => app.addPrinterRow(r.data.name, r.data.id))
             .catch((error) => {
@@ -140,7 +120,7 @@ const app = {
                     (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
                         (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
                 app.alert(msg);
-            })
+            }).finally(()=>app.mask(0));
     },
     updatePrinterRow: () => {
         if(!app.LastPrinter) return;
@@ -154,6 +134,7 @@ const app = {
     },
     updatePrinter: () => {
         if(!app.LastPrinter) return;
+        app.mask(1);
         app.api.post('/printer/' + app.LastPrinter.id, app.LastPrinter)
             .then(app.updatePrinterRow).catch((error) => {
             console.log({error});
@@ -162,11 +143,15 @@ const app = {
                 (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
                     (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
             app.alert(msg);
-        }).finally(() => $('#detailsModal').modal('hide'));
+        }).finally(() => {
+            $('#detailsModal').modal('hide');
+            app.mask(0);
+        });
     },
     deletePrinter: () => {
         if(!app.LastPrinter) return;
         $('#detailsModal').modal('hide');
+        app.mask(1);
         app.api.delete('/printer/' + app.LastPrinter.id)
             .then(() => {
                 $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]').remove();
@@ -178,7 +163,10 @@ const app = {
                     (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
                         (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
                 app.alert(msg);
-            }).finally(() => (app.LastPrinter = false));
+            }).finally(() => {
+                app.mask(0);
+                app.LastPrinter = false;
+            });
     },
     submitListeners: {
         "update-printer-form": function(event) {

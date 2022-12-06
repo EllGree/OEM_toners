@@ -21,9 +21,9 @@
     curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.12011-10-16 20:23:00");
     curl_setopt($curl, CURLOPT_HTTPHEADER, [
         "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
-        "Cache-Control: max-age=0", 
-        "Connection: keep-alive", 
-        "Keep-Alive: 300", 
+        "Cache-Control: max-age=0",
+        "Connection: keep-alive",
+        "Keep-Alive: 300",
         "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7",
         "Accept-Language: en-us,en;q=0.5","Pragma: "]);
     curl_setopt($curl, CURLOPT_REFERER, "https://www.staples.com/Ink-Toner-Finder/cat_SC43");
@@ -124,8 +124,8 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
     color: navy;
 }
 .search .recent .clear {
-    float: right; 
-    font-size: 14px; 
+    float: right;
+    font-size: 14px;
     margin-top: -26px;
 }
 #results { padding: 18px; margin-top: 51px; }
@@ -148,109 +148,31 @@ body {margin: 0; font-family: "Helvetica", sans-serif; font-size: 16px;}
 .details.cyan::before { background: rgb(0, 145, 145);}
 .details.magenta::before { background: rgb(152, 0, 152);}
 .details.yellow::before { background: rgb(213, 213, 0);}
-.details.tri-color::before { 
+.details.tri-color::before {
     background: linear-gradient(90deg, rgb(0, 145, 145) 0%, rgb(0, 145, 145) 33%, rgb(152, 0, 152) 33%, rgb(152, 0, 152) 66%, rgb(213, 213, 0) 66%, rgb(213, 213, 0) 100%);
 }
 
-#mask {
-  display: none;
-  position: absolute;
-  user-select: none;
-  height: 100%;
-  width: 100%;
-  background-color: rgb(0 0 0 / 43%);
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 9999;
-}
-#mask.loading {
-  display: block;
-}
-#mask.loading:before {
-    content: "";
-    background-color: rgba(0, 0, 0, 0);
-    border: 5px solid rgb(255 243 16 / 90%);
-    opacity: 0.9;
-    border-right: 5px solid rgb(0 191 255 / 95%);
-    border-left: 5px solid rgb(255 12 230);
-    border-top: 5px solid black;
-    border-radius: 50px;
-    box-shadow: 0 0 3px 6px #ffffff;
-    width: 50px;
-    height: 50px;
-    -moz-animation: spinPulse 1s infinite ease-in-out;
-    -webkit-animation: spinPulse 1s infinite linear;
-    margin: -25px 0 0 -25px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-}
-#mask.loading:after {
-    content: "";
-    background-color: rgba(0, 0, 0, 0);
-    border: 5px solid rgb(255 243 16 / 90%);
-    opacity: 0.9;
-    border-left: 5px solid rgb(255 12 230);
-    border-right: 5px solid rgb(0 191 255 / 95%);
-    border-top: 5px solid black;
-    border-radius: 50px;
-    box-shadow: 0 0 3px 2px #ffffff;
-    width: 30px;
-    height: 30px;
-    -moz-animation: spinoffPulse 1s infinite linear;
-    -webkit-animation: spinoffPulse 1s infinite linear;
-    margin: -15px 0 0 -15px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-}
+#mask {display: none;position: absolute;user-select: none;height: 100%;width: 100%;background-color: rgb(0 0 0 / 43%);bottom: 0;left: 0;right: 0;top: 0;z-index: 9999;}
+#mask.loading {display: block;}
+#mask.loading:before {content: "";background-color: rgba(0, 0, 0, 0);border: 5px solid rgb(255 243 16 / 90%);opacity: 0.9;border-right: 5px solid rgb(0 191 255 / 95%);border-left: 5px solid rgb(255 12 230);border-top: 5px solid black;border-radius: 50px;box-shadow: 0 0 3px 6px #ffffff;width: 50px;height: 50px;-moz-animation: spinPulse 1s infinite ease-in-out;-webkit-animation: spinPulse 1s infinite linear;margin: -25px 0 0 -25px;position: absolute;top: 50%;left: 50%;}
+#mask.loading:after {content: "";background-color: rgba(0, 0, 0, 0);border: 5px solid rgb(255 243 16 / 90%);opacity: 0.9;border-left: 5px solid rgb(255 12 230);border-right: 5px solid rgb(0 191 255 / 95%);border-top: 5px solid black;border-radius: 50px;box-shadow: 0 0 3px 2px #ffffff;width: 30px;height: 30px;-moz-animation: spinoffPulse 1s infinite linear;-webkit-animation: spinoffPulse 1s infinite linear;margin: -15px 0 0 -15px;position: absolute;top: 50%;left: 50%;}
 @-moz-keyframes spinPulse {
-  0% {
-    -moz-transform: rotate(160deg);
-    opacity: 0;
-    box-shadow: 0 0 1px #2187e7;
-  }
-  50% {
-    -moz-transform: rotate(145deg);
-    opacity: 1;
-  }
-  100% {
-    -moz-transform: rotate(-320deg);
-    opacity: 0;
-  }
+  0% {-moz-transform: rotate(160deg);opacity: 0;box-shadow: 0 0 1px #2187e7;}
+  50% {-moz-transform: rotate(145deg);opacity: 1;}
+  100% {-moz-transform: rotate(-320deg);opacity: 0;}
 }
 @-moz-keyframes spinoffPulse {
-  0% {
-    -moz-transform: rotate(0deg);
-  }
-  100% {
-    -moz-transform: rotate(360deg);
-  }
+  0% {-moz-transform: rotate(0deg);}
+  100% {-moz-transform: rotate(360deg);}
 }
 @-webkit-keyframes spinPulse {
-  0% {
-    -webkit-transform: rotate(160deg);
-    opacity: 0;
-    box-shadow: 0 0 1px #2187e7;
-  }
-  50% {
-    -webkit-transform: rotate(145deg);
-    opacity: 1;
-  }
-  100% {
-    -webkit-transform: rotate(-320deg);
-    opacity: 0;
-  }
+  0% {-webkit-transform: rotate(160deg);opacity: 0;box-shadow: 0 0 1px #2187e7;}
+  50% {-webkit-transform: rotate(145deg);opacity: 1;}
+  100% {-webkit-transform: rotate(-320deg);opacity: 0;}
 }
 @-webkit-keyframes spinoffPulse {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
+  0% {-webkit-transform: rotate(0deg);}
+  100% {-webkit-transform: rotate(360deg);}
 }
 input[type=text]::-ms-clear { display: none; width : 0; height: 0; }
 input[type=text]::-ms-reveal { display: none; width : 0; height: 0; }
@@ -262,7 +184,7 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
 </head>
 <body>
     <div class="search">
-        <input type="search" placeholder="Enter the printer name" /> 
+        <input type="search" placeholder="Enter the printer name" />
         <button>Search</button>
         <div class="recent"></div>
     </div>
@@ -345,7 +267,7 @@ var app = {
     parse: function(obj) {
         var ret = {name:'',type:'monochrome',cost:0,yeld:0,ccost:0,cyeld:0,details:[]};
         if (obj.originalQuery) ret.name = obj.originalQuery;
-        obj.products.forEach(function(p) { 
+        obj.products.forEach(function(p) {
             var p = app.parseProduct(p);
             if (p && ret.details.filter(function(d) { return d.color === p.color;}).length < 1) {
                 ret.details.push(p);
