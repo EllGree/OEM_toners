@@ -28,6 +28,7 @@ body {font-family: 'Nunito', sans-serif;}
 #printers>tbody>tr:hover>td {background-color: #99bfe6;}
 
 #detailsModal .modal-dialog {max-width: calc(100% - 22px);min-width:690px;}
+.fade {background-color: rgb(0 0 0 / 50%);}
 @media only screen and (max-width: 1024px) {
     #printerParts td:nth-child(1), #printerParts th:nth-child(1) {padding-left:4px;max-width: 200px;}
 }
