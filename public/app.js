@@ -1,9 +1,43 @@
+class Queue {
+    constructor(callback) {
+        this.clear();
+        if(typeof callback == 'function') {
+            this.callback = callback;
+        }
+    }
+    enqueue(element) { // add element to the queue
+        this.items.push(element);
+        this.initSize = this.size();
+    }
+    dequeue() { // remove element from the queue
+        if(this.items.length > 0) {
+            return this.items.shift();
+        }
+    }
+    peek() { // view the last element
+        return this.items[this.items.length - 1];
+    }
+    isEmpty() { // check if the queue is empty
+        if(this.callback) {
+            this.callback(this.size(), this.initSize);
+        }
+        return this.items.length == 0;
+    }
+    size() { // the size of the queue
+        return this.items.length;
+    }
+    clear() { // empty the queue
+        this.items = [];
+    }
+};
 const app = {
-    manufacturers: 'HP,IBM,Advent,Apple,Brother,Canon,Compaq,Dell,Epson,iHome,Kodak,Kyocera,Lexmark,OKI,Polaroid,Panasonic,Pantum,Philips,Ricoh,Pitney Bowes,Samsung,Sharp,Utax,Xerox',
+    manufacturers: 'HP,IBM,Advent,Apple,Brother,Canon,Compaq,Dell,Epson,Fargo,iHome,Kodak,Kyocera,' +
+        'Lexmark,OKI,Polaroid,Panasonic,Pantum,Philips,Ricoh,Pitney Bowes,Samsung,Sharp,Utax,Xerox',
     init: () => {
         if(typeof $ !== 'function' || typeof axios !== 'function') {
             return setTimeout(app.init, 100);
         }
+        app.lastAction = 'init';
         app.manufacturers = app.manufacturers.split(',');
         app.api = axios.create({
             headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -36,13 +70,6 @@ const app = {
         $('#app')[0].style.display='block';
         app.mask(false);
     },
-    mask: (on) => $('#mask')[0].classList[on?'add':'remove']('loading'),
-    alert: (text) => {
-        if(!$("#alert>span").length) return alert(text);
-        $("#alert>span").html(text);
-        $("#alert").show();
-        setTimeout(() => $("#alert").hide(), 2500);
-    },
     rowClick: (e) => {
         let t = e.target;
         while (t.tagName !== 'TR') t = t.parentElement;
@@ -57,6 +84,7 @@ const app = {
         $('#info-model').val(app.LastPrinter.model);
         $('#info-coverage').val(app.LastPrinter.coverage);
         app.mask(1);
+        app.lastAction = 'fetch printer details';
         app.api.get("/printer/"+app.LastPrinter.id)
             .then((reply) => {
                 let html = '';
@@ -72,10 +100,7 @@ const app = {
                 $('#printerPartsBody').html(html);
                 app.tablesorter('#printerParts');
                 $('#detailsModal').modal('show');
-            }).catch((error) => {
-                console.log({error});
-                app.alert("Failed to fetch details for printer. "+(error.message??''));
-            }).finally(()=>app.mask(0));
+            }).catch(app.catchError).finally(app.finally);
     },
     getModel: (name) => {
         const brand = app.getBrand(name), n = name.toString()
@@ -103,25 +128,6 @@ const app = {
         const callback = () => $('#printers>tbody>tr[data-id="'+id+'"]').click(app.rowClick);
         $( '#printers' ).find('tbody').append($row).trigger('addRows', [$row, true, callback]);
     },
-    addPrinter: (name) => {
-        const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
-        if(!brand) return app.alert("Failed to add "+n+"<br>Unknown printer manufacturer.");
-        if(!model) return app.alert("Failed to add "+n+"<br>Unknown printer model.");
-        if(model.length>50) return app.alert("Failed to add "+n+"<br>Model name is too long.");
-        if($("#printers>tbody>tr[data-name='"+n+"']").length) return app.alert("The printer "+n+" is already in list.");
-        $('#add-printer-modal').modal('hide');
-        app.mask(1);
-        app.api.post('/printers', {term:n})
-            .then((r) => app.addPrinterRow(r.data.name, r.data.id))
-            .catch((error) => {
-                console.log({error});
-                const msg = "Failed to add " + n +
-                    (error.message ? '<br>' +error.message : '') +
-                    (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
-                        (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
-                app.alert(msg);
-            }).finally(()=>app.mask(0));
-    },
     updatePrinterRow: () => {
         if(!app.LastPrinter) return;
         const row = $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]');
@@ -132,41 +138,72 @@ const app = {
         row[0].dataset.name = app.LastPrinter.name;
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
     },
+    deletePrinterRow: () => {
+        if(!app.LastPrinter) return;
+        $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]').remove();
+        $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
+    },
+    addPrinter: (name) => {
+        const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
+        const bad = (msg) => { app.alert(msg); app.finally(); }
+        $('#add-printer-modal').modal('hide');
+        app.lastAction = 'add printer';
+        if(!brand) return bad("Failed to add "+n+"<br>Unknown printer manufacturer.");
+        if(!model) return bad("Failed to add "+n+"<br>Unknown printer model.");
+        if(model.length>50) return bad("Failed to add "+n+"<br>Model name is too long.");
+        if($("#printers>tbody>tr[data-name='"+n+"']").length) return bad("The printer "+n+" is already in list.");
+        app.mask(1);
+        app.api.post('/printers', {term:n})
+            .then((r) => app.addPrinterRow(r.data.name, r.data.id))
+            .catch(app.catchError)
+            .finally(app.finally);
+    },
     updatePrinter: () => {
         if(!app.LastPrinter) return;
         app.mask(1);
+        app.lastAction = 'update printer';
         app.api.post('/printer/' + app.LastPrinter.id, app.LastPrinter)
-            .then(app.updatePrinterRow).catch((error) => {
-            console.log({error});
-            const msg = "Failed to update " + app.LastPrinter.name +
-                (error.message ? '<br>' +error.message : '') +
-                (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
-                    (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
-            app.alert(msg);
-        }).finally(() => {
-            $('#detailsModal').modal('hide');
-            app.mask(0);
-        });
+            .then(app.updatePrinterRow)
+            .catch(app.catchError)
+            .finally(app.finally);
     },
     deletePrinter: () => {
         if(!app.LastPrinter) return;
         $('#detailsModal').modal('hide');
         app.mask(1);
+        app.lastAction = 'delete printer';
         app.api.delete('/printer/' + app.LastPrinter.id)
-            .then(() => {
-                $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]').remove();
-                $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
-            }).catch((error) => {
-                console.log({error});
-                const msg = "Failed to delete " + app.LastPrinter.name +
-                    (error.message ? '<br>' +error.message : '') +
-                    (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
-                        (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
-                app.alert(msg);
-            }).finally(() => {
-                app.mask(0);
-                app.LastPrinter = false;
-            });
+            .then(app.deletePrinterRow)
+            .catch(app.catchError)
+            .finally(app.finally)
+    },
+    catchError: (error) => {
+        let txt = 'Failed to '+app.lastAction.trim();
+        if(app.LastPrinter) txt = txt.replace(/printer/, 'printer "'+app.LastPrinter.name+'"');
+        console.log(txt, {error});
+        const msg = txt + (error.message ? '<br>' +error.message : '') +
+            (error.response && error.response.data.message ? ' -- ' + error.response.data.message :
+                (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
+        app.alert(msg);
+    },
+    finally: () => {
+        if(app.lastAction == 'update printer') $('#detailsModal').modal('hide');
+        if(app.lastAction == 'delete printer') app.LastPrinter = false;
+        if(app.lastAction == 'add printer' && app.queue) {
+            if(!app.queue.isEmpty()) {
+                // Small delay to prevent "429 Too Many Requests" error
+                return setTimeout(app.qNext, 100);
+            }
+            app.progress(100);
+            delete app.queue; // Destroy queue
+        }
+        app.mask(0);
+    },
+    qNext: () => app.addPrinter(app.queue.dequeue()), // Next printer from Bulk import
+    qCounter: (current, full) => { // Callback for queue
+        const percent = Math.round(10000 - current * 10000 / full) / 100;
+        app.progress(percent);
+        if(!current) app.mask(0);
     },
     submitListeners: {
         "update-printer-form": function(event) {
@@ -193,16 +230,25 @@ const app = {
             const val = event.target[0].value.toString().trim();
             event.preventDefault();
             let lst = val.split('\n');
-            if(lst.length>50) {
-                lst = lst.slice(0, 50);
-                app.alert("The list of more than 50 models is shortened.");
-            } else if(lst.length<1) {
-                return;
-            }
-            lst.forEach((n, i) => {
-                setTimeout(() => app.addPrinter(n), i*450);
-            });
+            if(lst.length<1) return;
+            app.progress(0);
+            app.queue = new Queue(app.qCounter);
+            lst.forEach((n) => app.queue.enqueue(n));
+            app.addPrinter(app.queue.dequeue()); // Start Bulk import process
         }
+    },
+    alert: (text) => {
+        if(!$("#alert>span").length) return alert(text);
+        $("#alert>span").html(text);
+        $("#alert").show();
+        setTimeout(() => $("#alert").hide(), 2500);
+    },
+    mask: (on) => $('#mask')[0].classList[on?'add':'remove']('loading'),
+    progress: (percent) => {
+        if (!app.indicator) app.indicator = new ldBar('#indicator');
+        app.indicator.set(parseInt(percent));
+        if(parseInt(percent) === 100) setTimeout(() => $('#indicator').hide(), 500);
+        else $('#indicator').show();
     },
     download_csv: () => {
         const parts = app.lastReply.parts ?? false;
@@ -220,6 +266,7 @@ const app = {
     },
     tablesorter: (selector) => {
         const sel = selector ?? 'table';
+        $(sel).trigger("destroy");
         const t = $(sel).tablesorter({
             theme : 'blue',
             // headers: {'.nosort':{sorter:false}},

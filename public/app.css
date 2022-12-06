@@ -37,6 +37,8 @@ body {font-family: 'Nunito', sans-serif;}
     #printerParts {    font-size: 0.75rem;}
 }
 
+#indicator {width: 90px !important;height: 90px !important;position: fixed;display:none;left: calc(50% - 45px);top: calc(50% - 45px);background-color: rgb(145 145 145 / 75%);border-radius: 50px;font-weight: 700;font-size: 24px;line-height: 24px;color: #000000;text-shadow: 0 0 11px #ffffff;outline: 3px solid #ffffff;z-index: 10000;}
+
 /************* Tablesorter Blue Theme *************/
 /* overall */
 .tablesorter-blue {
@@ -250,8 +252,4 @@ body {font-family: 'Nunito', sans-serif;}
 }
 
 /* ajax error row */
-.tablesorter .tablesorter-errorRow td {
-    text-align: center;
-    cursor: pointer;
-    background-color: #e6bf99;
-}
+.tablesorter .tablesorter-errorRow td {text-align: center;cursor: pointer;background-color: #e6bf99;}

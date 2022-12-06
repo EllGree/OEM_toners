@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>OEM Toners</title>
     <style>
-        #mask {display: none;position: absolute;user-select: none;height: 100%;width: 100%;background-color: rgb(0 0 0 / 43%);bottom: 0;left: 0;right: 0;top: 0;z-index: 9999;}
+        #mask {display: none;position: fixed;user-select: none;height: 100%;width: 100%;background-color: rgb(0 0 0 / 43%);bottom: 0;left: 0;right: 0;top: 0;z-index: 9999;}
         #mask.loading {display: block;}
         #mask.loading:before {content: "";background-color: rgba(0, 0, 0, 0);border: 5px solid rgb(255 243 16 / 90%);opacity: 0.9;border-right: 5px solid rgb(0 191 255 / 95%);border-left: 5px solid rgb(255 12 230);border-top: 5px solid black;border-radius: 50px;box-shadow: 0 0 3px 6px #ffffff;width: 50px;height: 50px;-moz-animation: spinPulse 1s infinite ease-in-out;-webkit-animation: spinPulse 1s infinite linear;margin: -25px 0 0 -25px;position: absolute;top: 50%;left: 50%;}
         #mask.loading:after {content: "";background-color: rgba(0, 0, 0, 0);border: 5px solid rgb(255 243 16 / 90%);opacity: 0.9;border-left: 5px solid rgb(255 12 230);border-right: 5px solid rgb(0 191 255 / 95%);border-top: 5px solid black;border-radius: 50px;box-shadow: 0 0 3px 2px #ffffff;width: 30px;height: 30px;-moz-animation: spinoffPulse 1s infinite linear;-webkit-animation: spinoffPulse 1s infinite linear;margin: -15px 0 0 -15px;position: absolute;top: 50%;left: 50%;}
@@ -32,10 +32,12 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" crossorigin="anonymous" defer></script>
-    <script src="/jquery.tablesorter.js" defer></script>
+    <script src="/jquery.tablesorter.min.js" defer></script>
+    <script src="/loading-bar.min.js" defer></script>
     <script src="/app.js" defer></script>
     <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" />
     <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/loading-bar.min.css" />
     <link rel="stylesheet" href="/app.css" />
 </head>
 <body class="antialiased">
@@ -99,11 +101,11 @@
                     <div class="tab-pane hidden" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
                         <form class="needs-validation" novalidate id="add-printers-form">
                             <div class="form-group">
-                                Please enter a list of no more than 50 printer names to import.
                                 <textarea class="form-control" requiredaria-label="Printer names"
+                                          placeholder="Please paste a list of printer names to import here"
                                           aria-describedby="inputGroupPrepend"
                                           id="printer-list"></textarea>
-                                <div class="invalid-feedback">Please enter a list of printers.</div>
+                                <div class="invalid-feedback">Enter a list of printer names to import.</div>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Add printers</button>
@@ -197,8 +199,12 @@
                         <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="app.download_csv()">Download CSV</button>
                     </div>
                     <div class="tab-pane hidden" id="groups" role="tabpanel" aria-labelledby="groups-tab">
-                        <br/><strong>This tab is still under development.</strong><br/><br/>
-                        It will break down consumables into groups, normalize the cost of consumables (toner, replaceable spare parts, cleaning materials) per 1,000 pages of printing, and calculate toner consumption based on a given printer's page coverage.
+                        <p><strong>This tab is under development.</strong></p>
+                        <p>Presumably here should be a solution to the combinatorial problem of breaking down consumable parts
+                            (toner, replaceable spare parts, cleaning materials, etc.) into groups, normalize the cost of consumables
+                            (e.g. cost of printing per 1,000 pages), and calculate toner consumption based on a given printer's page coverage.</p>
+                        <p>Unfortunately, I could not formalize the problem, because of the lack of data on yield and/or price of parts,
+                            or the apparent lack of necessary types of parts, I could not even determine the principle of their grouping.</p>
                     </div>
                 </div>
             </div>
@@ -210,5 +216,7 @@
 </div>
 <!-- Alert window -->
 <div class="alert alert-danger alert-dismissible hidden" id="alert"><span></span></div>
+<!-- Progress indicator -->
+<div class="ldBar label-center" id="indicator" data-value="0" data-preset="circle"></div>
 </body>
 </html>
