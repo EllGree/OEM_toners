@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Jobs\GetPrinterParts;
+use App\Models\Printer;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class UpdatePrinter extends Command
@@ -28,7 +30,12 @@ class UpdatePrinter extends Command
      */
     public function handle()
     {
-        \App\Jobs\UpdatePrinter::dispatch();
+        if ($printer = Printer::orderBy('updated_at')
+            ->where('updated_at', '<', Carbon::now()->subDays(3))
+            ->first()) {
+            $this->info($printer->name);
+            GetPrinterParts::dispatch($printer->name);
+        }
         return Command::SUCCESS;
     }
 }

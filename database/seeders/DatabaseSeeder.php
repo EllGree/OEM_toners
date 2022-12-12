@@ -32,7 +32,7 @@ OKI C330dn';
     {
         foreach (explode("\n", $this->names) as $name) {
             if (trim($name)) {
-                Printer::factory()->create(['name' => $name]);
+                Printer::factory()->create(['name' => $name, 'updated_at' => now()->subDays(7)]);
             }
         }
     }
