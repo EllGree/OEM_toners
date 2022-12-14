@@ -68,7 +68,6 @@ const app = {
         });
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
         $('#app')[0].style.display='block';
-        app.mask(false);
     },
     rowClick: (e) => {
         let t = e.target;
@@ -83,7 +82,6 @@ const app = {
         $('#info-manufacturer').val(app.LastPrinter.manufacturer);
         $('#info-model').val(app.LastPrinter.model);
         $('#info-coverage').val(app.LastPrinter.coverage);
-        app.mask(1);
         app.lastAction = 'fetch printer details';
         app.api.get("/printer/"+app.LastPrinter.id)
             .then((reply) => {
@@ -152,7 +150,6 @@ const app = {
         if(!model) return bad("Failed to add "+n+"<br>Unknown printer model.");
         if(model.length>50) return bad("Failed to add "+n+"<br>Model name is too long.");
         if($("#printers>tbody>tr[data-name='"+n+"']").length) return bad("The printer "+n+" is already in list.");
-        app.mask(1);
         app.api.post('/printers', {term:n})
             .then((r) => app.addPrinterRow(r.data.name, r.data.id))
             .catch(app.catchError)
@@ -160,7 +157,6 @@ const app = {
     },
     updatePrinter: () => {
         if(!app.LastPrinter) return;
-        app.mask(1);
         app.lastAction = 'update printer';
         app.api.post('/printer/' + app.LastPrinter.id, app.LastPrinter)
             .then(app.updatePrinterRow)
@@ -170,7 +166,6 @@ const app = {
     deletePrinter: () => {
         if(!app.LastPrinter) return;
         $('#detailsModal').modal('hide');
-        app.mask(1);
         app.lastAction = 'delete printer';
         app.api.delete('/printer/' + app.LastPrinter.id)
             .then(app.deletePrinterRow)
@@ -197,13 +192,11 @@ const app = {
             app.progress(100);
             delete app.queue; // Destroy queue
         }
-        app.mask(0);
     },
     qNext: () => app.addPrinter(app.queue.dequeue()), // Next printer from Bulk import
     qCounter: (current, full) => { // Callback for queue
         const percent = Math.round(10000 - current * 10000 / full) / 100;
         app.progress(percent);
-        if(!current) app.mask(0);
     },
     submitListeners: {
         "update-printer-form": function(event) {
