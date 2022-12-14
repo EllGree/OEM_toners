@@ -4,30 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>OEM Toners</title>
-    <style>
-        #mask {display: none;position: fixed;user-select: none;height: 100%;width: 100%;background-color: rgb(0 0 0 / 43%);bottom: 0;left: 0;right: 0;top: 0;z-index: 9999;}
-        #mask.loading {display: block;}
-        #mask.loading:before {content: "";background-color: rgba(0, 0, 0, 0);border: 5px solid rgb(255 243 16 / 90%);opacity: 0.9;border-right: 5px solid rgb(0 191 255 / 95%);border-left: 5px solid rgb(255 12 230);border-top: 5px solid black;border-radius: 50px;box-shadow: 0 0 3px 6px #ffffff;width: 50px;height: 50px;-moz-animation: spinPulse 1s infinite ease-in-out;-webkit-animation: spinPulse 1s infinite linear;margin: -25px 0 0 -25px;position: absolute;top: 50%;left: 50%;}
-        #mask.loading:after {content: "";background-color: rgba(0, 0, 0, 0);border: 5px solid rgb(255 243 16 / 90%);opacity: 0.9;border-left: 5px solid rgb(255 12 230);border-right: 5px solid rgb(0 191 255 / 95%);border-top: 5px solid black;border-radius: 50px;box-shadow: 0 0 3px 2px #ffffff;width: 30px;height: 30px;-moz-animation: spinoffPulse 1s infinite linear;-webkit-animation: spinoffPulse 1s infinite linear;margin: -15px 0 0 -15px;position: absolute;top: 50%;left: 50%;}
-        @-moz-keyframes spinPulse {
-            0% {-moz-transform: rotate(160deg);opacity: 0;box-shadow: 0 0 1px #2187e7;}
-            50% {-moz-transform: rotate(145deg);opacity: 1;}
-            100% {-moz-transform: rotate(-320deg);opacity: 0;}
-        }
-        @-moz-keyframes spinoffPulse {
-            0% {-moz-transform: rotate(0deg);}
-            100% {-moz-transform: rotate(360deg);}
-        }
-        @-webkit-keyframes spinPulse {
-            0% {-webkit-transform: rotate(160deg);opacity: 0;box-shadow: 0 0 1px #2187e7;}
-            50% {-webkit-transform: rotate(145deg);opacity: 1;}
-            100% {-webkit-transform: rotate(-320deg);opacity: 0;}
-        }
-        @-webkit-keyframes spinoffPulse {
-            0% {-webkit-transform: rotate(0deg);}
-            100% {-webkit-transform: rotate(360deg);}
-        }
-    </style>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" crossorigin="anonymous" defer></script>
@@ -41,7 +17,6 @@
     <link rel="stylesheet" href="/app.css" />
 </head>
 <body class="antialiased">
-<div id="mask" class="loading"></div>
 <div id="app">
     <table id="printers" class="tablesorter-blue">
         <thead>

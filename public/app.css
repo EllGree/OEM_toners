@@ -34,13 +34,12 @@ body {font-family: 'Nunito', sans-serif;}
     #printerParts td:nth-child(1), #printerParts th:nth-child(1) {padding-left:4px;max-width: 374px;}
     #printerParts th:nth-child(2), #printerParts th:nth-child(3) { width: 82px; }
     #printerParts th:nth-child(4), #printerParts th:nth-child(5) { width: 60px; }
-{width: 82px;}
 }
 @media only screen and (max-width: 1024px) {
     #printerParts {    font-size: 0.75rem;}
 }
 
-#indicator {width: 90px !important;height: 90px !important;position: fixed;display:none;left: calc(50% - 45px);top: calc(50% - 45px);background-color: rgb(145 145 145 / 75%);border-radius: 50px;font-weight: 700;font-size: 24px;line-height: 24px;color: #000000;text-shadow: 0 0 11px #ffffff;outline: 3px solid #ffffff;z-index: 10000;}
+#indicator {width: 90px !important;height: 90px !important;position: fixed;display:none;left: calc(50% - 45px);top: calc(50% - 45px);background-color: rgb(255 255 255 / 45%);border-radius: 50px;font-weight: 700;font-size: 24px;line-height: 24px;color: #000000;z-index: 10000;}
 
 /************* Tablesorter Blue Theme *************/
 /* overall */
@@ -248,11 +247,9 @@ body {font-family: 'Nunito', sans-serif;}
     outline: solid 1px #99bfe6;
     border-color: #99bfe6;
 }
-
 /* rows hidden by filtering (needed for child rows) */
 .tablesorter .filtered {
     display: none;
 }
-
 /* ajax error row */
 .tablesorter .tablesorter-errorRow td {text-align: center;cursor: pointer;background-color: #e6bf99;}
