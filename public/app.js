@@ -83,7 +83,7 @@ const app = {
         $('#info-manufacturer').val(app.LastPrinter.manufacturer);
         $('#info-model').val(app.LastPrinter.model);
         $('#info-coverage').val(app.LastPrinter.coverage);
-        app.mask(1);
+        //app.mask(1);
         app.lastAction = 'fetch printer details';
         app.api.get("/printer/"+app.LastPrinter.id)
             .then((reply) => {
@@ -152,7 +152,7 @@ const app = {
         if(!model) return bad("Failed to add "+n+"<br>Unknown printer model.");
         if(model.length>50) return bad("Failed to add "+n+"<br>Model name is too long.");
         if($("#printers>tbody>tr[data-name='"+n+"']").length) return bad("The printer "+n+" is already in list.");
-        app.mask(1);
+        //app.mask(1);
         app.api.post('/printers', {term:n})
             .then((r) => app.addPrinterRow(r.data.name, r.data.id))
             .catch(app.catchError)
@@ -160,7 +160,7 @@ const app = {
     },
     updatePrinter: () => {
         if(!app.LastPrinter) return;
-        app.mask(1);
+        //app.mask(1);
         app.lastAction = 'update printer';
         app.api.post('/printer/' + app.LastPrinter.id, app.LastPrinter)
             .then(app.updatePrinterRow)
@@ -170,7 +170,7 @@ const app = {
     deletePrinter: () => {
         if(!app.LastPrinter) return;
         $('#detailsModal').modal('hide');
-        app.mask(1);
+        //app.mask(1);
         app.lastAction = 'delete printer';
         app.api.delete('/printer/' + app.LastPrinter.id)
             .then(app.deletePrinterRow)
@@ -231,6 +231,7 @@ const app = {
             event.preventDefault();
             let lst = val.split('\n');
             if(lst.length<1) return;
+            app.mask(1);
             app.progress(0);
             app.queue = new Queue(app.qCounter);
             lst.forEach((n) => app.queue.enqueue(n));
