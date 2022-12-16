@@ -46,7 +46,9 @@ const app = {
         app.tablesorter('#printers');
         $('#printers>tbody>tr').click(app.rowClick);
         // Autofocus in modal
-        $('.modal').on('shown.bs.modal', function() {$(this).find('[autofocus]').focus();});
+        $('.modal').on('shown.bs.modal', function() {
+            $(this).find('[autofocus]').focus();
+        });
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         const forms = document.getElementsByClassName('needs-validation');
         // Loop over them and prevent submission
@@ -67,9 +69,11 @@ const app = {
             $(this).find('[autofocus]').focus();
         });
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
-        $('#app')[0].style.display='block';
     },
     rowClick: (e) => {
+        if(app.queue) {
+            return app.alert("Please wait until the end of the import procedure.");
+        }
         let t = e.target;
         while (t.tagName !== 'TR') t = t.parentElement;
         app.LastPrinter = {
@@ -103,8 +107,7 @@ const app = {
     getModel: (name) => {
         const brand = app.getBrand(name), n = name.toString()
             .replace(/[^a-z0-9 -]+/gi, " ")
-            .trim()
-            .substring(brand.length).trim();
+            .trim().substring(brand.length).trim();
         // @@Know how: remove words "colour", "laser", "printer" in Dell models
         if(brand == 'Dell') return n.replace(/(colour|laser|printer) /i,'');
         // @@Know how: remove postfix DWF in Epson models
@@ -189,6 +192,7 @@ const app = {
                 // Small delay to prevent "429 Too Many Requests" error
                 return setTimeout(app.qNext, 100);
             }
+            document.getElementById('plus').classList.remove('disapear'); // Show "Plus" button
             app.progress(100);
             delete app.queue; // Destroy queue
         }
@@ -224,6 +228,7 @@ const app = {
             event.preventDefault();
             let lst = val.split('\n');
             if(lst.length<1) return;
+            document.getElementById('plus').classList.add('disapear'); // Hide "Plus" button
             app.progress(0);
             app.queue = new Queue(app.qCounter);
             lst.forEach((n) => app.queue.enqueue(n));
@@ -236,7 +241,6 @@ const app = {
         $("#alert").show();
         setTimeout(() => $("#alert").hide(), 2500);
     },
-    mask: (on) => $('#mask')[0].classList[on?'add':'remove']('loading'),
     progress: (percent) => {
         if (!app.indicator) app.indicator = new ldBar('#indicator');
         app.indicator.set(parseInt(percent));

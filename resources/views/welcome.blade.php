@@ -97,7 +97,6 @@
     </div>
 </div>
 <button id="plus" type="button" class="btn btn-primary" title="App Printer(s)" data-toggle="modal" data-target="#add-printer-modal">+</button>
-
 <!-- Modal Printer Details -->
 <div class="modal fade bd-example-modal-lg" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
