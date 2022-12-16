@@ -33,9 +33,11 @@ class Queue {
 const app = {
     manufacturers: 'HP,IBM,Advent,Apple,Brother,Canon,Compaq,Dell,Epson,Fargo,iHome,Kodak,Kyocera,' +
         'Lexmark,OKI,Polaroid,Panasonic,Pantum,Philips,Ricoh,Pitney Bowes,Samsung,Sharp,Utax,Xerox',
+    delay: 100, // Delay between requests to prevent flooding
+    alertDelay: 2600, // Show alert message {app.alertDelay} ms
     init: () => {
         if(typeof $ !== 'function' || typeof axios !== 'function') {
-            return setTimeout(app.init, 100);
+            return setTimeout(app.init, app.delay);
         }
         app.lastAction = 'init';
         app.manufacturers = app.manufacturers.split(',');
@@ -146,7 +148,7 @@ const app = {
     },
     addPrinter: (name) => {
         const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
-        const bad = (msg) => { app.alert(msg); app.finally(); }
+        const bad = (msg) => { app.alert(msg); app.finally(true); }
         $('#add-printer-modal').modal('hide');
         app.lastAction = 'add printer';
         if(!brand) return bad("Failed to add "+n+"<br>Unknown printer manufacturer.");
@@ -184,13 +186,13 @@ const app = {
                 (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
         app.alert(msg);
     },
-    finally: () => {
+    finally: (nodelay) => {
         if(app.lastAction == 'update printer') $('#detailsModal').modal('hide');
         if(app.lastAction == 'delete printer') app.LastPrinter = false;
         if(app.lastAction == 'add printer' && app.queue) {
             if(!app.queue.isEmpty()) {
                 // Small delay to prevent "429 Too Many Requests" error
-                return setTimeout(app.qNext, 100);
+                return setTimeout(app.qNext, nodelay ? 0 : app.delay);
             }
             document.getElementById('plus').classList.remove('disapear'); // Show "Plus" button
             app.progress(100);
@@ -239,12 +241,14 @@ const app = {
         if(!$("#alert>span").length) return alert(text);
         $("#alert>span").html(text);
         $("#alert").show();
-        setTimeout(() => $("#alert").hide(), 2500);
+        setTimeout(() => $("#alert").hide(), app.alertDelay);
     },
     progress: (percent) => {
         if (!app.indicator) app.indicator = new ldBar('#indicator');
         app.indicator.set(parseInt(percent));
-        if(parseInt(percent) === 100) setTimeout(() => $('#indicator').hide(), 500);
+        if(parseInt(percent) >= 100) {
+            setTimeout(() => $('#indicator').hide(), app.delay);
+        }
         else $('#indicator').show();
     },
     download_csv: () => {
