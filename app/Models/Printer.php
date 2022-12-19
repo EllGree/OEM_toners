@@ -51,8 +51,10 @@ class Printer extends Model {
         /** @var Part $cartridge */
         foreach ($cartridges as $cartridge) {
             $response .= "$cartridge->name\t$cartridge->color\t$cartridge->yield\t$cartridge->price\t";
-            $response .= "Per copy: $" . ($cartridge->price / $cartridge->yield) . PHP_EOL;
-            $perCopy += $cartridge->price / $cartridge->yield;
+            if($cartridge->yield>0) {
+                $response .= "Per copy: $" . ($cartridge->price / $cartridge->yield) . PHP_EOL;
+                $perCopy += $cartridge->price / $cartridge->yield;
+            }
         }
         $cartridgePriceRaw = round($perCopy, 4);
         $cartridgePrice = round($cartridgePriceRaw * $this->coverage / 5, 4);
@@ -72,8 +74,10 @@ class Printer extends Model {
         foreach ($cartridges as $cartridge) {
             $response .= "$cartridge->name\t$cartridge->color\t$cartridge->yield\t$cartridge->price\t";
             $cartridgeYields[] = $cartridge->yield;
-            $response .= "Per copy: $" . ($cartridge->price / $cartridge->yield) . PHP_EOL;
-            $perCopy += $cartridge->price / $cartridge->yield;
+            if($cartridge->yield>0) {
+                $response .= "Per copy: $" . ($cartridge->price / $cartridge->yield) . PHP_EOL;
+                $perCopy += $cartridge->price / $cartridge->yield;
+            }
         }
         $cartridgePriceRaw = round($perCopy, 4);
         $cartridgePriceHY = round($cartridgePriceRaw * $this->coverage / 5, 4);

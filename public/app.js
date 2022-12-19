@@ -107,7 +107,7 @@ const app = {
                 app.tablesorter('#printerParts');
                 $('#detailsModal').modal('show');
             })
-            //.catch(app.catchError)
+            .catch(app.catchError)
             .finally(app.finally);
     },
     getModel: (name) => {
