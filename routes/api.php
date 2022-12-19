@@ -27,13 +27,11 @@ Route::get('/printers', function() {
         ->header('Content-type', 'application/json');
 });
 
-Route::get('/printer/{id}', function($id) {
-    $printer = Printer::whereId($id)->first();
-    if(!$printer) return;
-    $parts = $printer->parts()->get();
-    $reply = json_decode(json_encode($printer->getAttributes()));
-    $reply->parts = $parts;
-    return response(json_encode($reply))->header('Content-type', 'application/json');
+Route::get('/printer/{printer}', function(Printer $printer) {
+    $reply = (object) $printer->getAttributes();
+    $reply->parts = $printer->parts;
+    $reply->groups = $printer->groupsDebug();
+    return response()->json($reply, 200, [], JSON_PRETTY_PRINT);
 });
 
 Route::post('/printer/{id}', function($id) {

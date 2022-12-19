@@ -87,6 +87,7 @@ const app = {
             .then((reply) => {
                 let html = '';
                 app.lastReply = reply.data;
+                console.log(reply.data);
                 $('#detailsModalLabel').html(reply.data.name);
                 Array.from(reply.data.parts).forEach((r) => {
                     html += '<tr><td>' + r.name + '</td><td>' +
@@ -96,9 +97,12 @@ const app = {
                         r.price + '</td></tr>';
                 });
                 $('#printerPartsBody').html(html);
+                $('#groups').html(reply.data.groups);
                 app.tablesorter('#printerParts');
                 $('#detailsModal').modal('show');
-            }).catch(app.catchError).finally(app.finally);
+            })
+            //.catch(app.catchError)
+            .finally(app.finally);
     },
     getModel: (name) => {
         const brand = app.getBrand(name), n = name.toString()
