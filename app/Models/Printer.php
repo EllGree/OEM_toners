@@ -54,6 +54,8 @@ class Printer extends Model {
             if($cartridge->yield>0) {
                 $response .= "Per copy: $" . ($cartridge->price / $cartridge->yield) . PHP_EOL;
                 $perCopy += $cartridge->price / $cartridge->yield;
+            } else {
+                $response .= PHP_EOL;
             }
         }
         $cartridgePriceRaw = round($perCopy, 4);
@@ -77,6 +79,8 @@ class Printer extends Model {
             if($cartridge->yield>0) {
                 $response .= "Per copy: $" . ($cartridge->price / $cartridge->yield) . PHP_EOL;
                 $perCopy += $cartridge->price / $cartridge->yield;
+            } else {
+                $response .= PHP_EOL;
             }
         }
         $cartridgePriceRaw = round($perCopy, 4);
