@@ -27,22 +27,77 @@ HP Color LaserJet CP3525 (color printer):
  - php artisan serve
 
 # List of printer models for testing:
- - HP LaserJet Pro M404
- - HP LaserJet Pro MFP 3101
- - HP ENVY Inspire 7955e
- - HP Color LaserJet CP3525
- - HP Photosmart C4272
- - HP DeskJet 2755e
- - Epson EcoTank ET-2800
- - Brother MFC-J1010DW
- - Canon PIXMA G6020
- - Fargo DTC 1250E Printer
- - Lexmark CX725de
- - Kyocera EcoSys
- - Samsung ProXpress C2620 DW
- - Xerox C315
- - OKI C330dn
- - Canon PIXMA TS205
- - HP CF350A
- - Canon PIXMA TS3150
- - HP CF210A
+- Brother HL-3170CDW
+- Brother HL-4150CDN
+- Brother HL-L3230CDW
+- Brother HL-L3270CDW
+- Brother HL-L3290CDW
+- Brother HL-L8260CDW
+- Brother HL-L8360CDW
+- Brother MFC-9340CDW
+- Brother MFC-J1010DW
+- Brother MFC-J6920DW
+- Brother MFC-L3710CW
+- Brother MFC-L8900CDW
+- Brother MFC-L9570CDW
+- Canon PIXMA G6020
+- Canon PIXMA TS205
+- Canon PIXMA TS3150
+- Epson EcoTank ET-2800
+- Epson Stylus Pro 3850
+- Fargo DTC 1250E Printer
+- HP CF210A
+- HP CF350A
+- HP Color LaserJet CP3525
+- HP Color LaserJet CP4525dn
+- HP Color LaserJet Enterprise M553dn
+- HP Color LaserJet Pro CM1415fnw MFP
+- HP Color LaserJet Pro M252dw
+- HP Color LaserJet Pro M254dw
+- HP Color LaserJet Pro M452dn
+- HP Color LaserJet Pro M452dw
+- HP Color LaserJet Pro M454dn
+- HP Color LaserJet Pro M454dw
+- HP Color LaserJet Pro MFP M277dw
+- HP Color LaserJet Pro MFP M281fdw
+- HP Color LaserJet Pro MFP M477fdn
+- HP Color LaserJet Pro MFP M477fdw
+- HP Color LaserJet Pro MFP M477fnw
+- HP Color LaserJet Pro MFP M479fdn
+- HP Color LaserJet Pro MFP M479fdw
+- HP DeskJet 2755e
+- HP DeskJet 3630
+- HP ENVY Inspire 7955e
+- HP LaserJet 4101 MFPDUPLEX
+- HP LaserJet Managed MFP E42540f
+- HP LaserJet Managed MFP E72535dn
+- HP LaserJet Pro 300 color MFP M375nw
+- HP LaserJet Pro 400 M401dn
+- HP LaserJet Pro 400 M401dw
+- HP LaserJet Pro 400 MFP M425dn
+- HP LaserJet Pro 400 color M451dn
+- HP LaserJet Pro 400 color M451nw
+- HP LaserJet Pro M404
+- HP LaserJet Pro MFP 3101
+- HP OfficeJet 3830
+- HP OfficeJet 4500 All in one
+- HP OfficeJet 4650
+- HP OfficeJet Pro 6230
+- HP OfficeJet Pro 6968 All-in-One
+- HP OfficeJet Pro 6978 All-in-One
+- HP OfficeJet Pro 7740
+- HP OfficeJet Pro 8210
+- HP OfficeJet Pro 8600
+- HP OfficeJet Pro 8610
+- HP OfficeJet Pro 8620
+- HP OfficeJet Pro 8710
+- HP OfficeJet Pro 8720
+- HP PhotoSmart 5510 e-All in one
+- HP Photosmart C4272
+- Kyocera EcoSys
+- Lexmark CX 417de
+- Lexmark CX725de
+- OKI C330dn
+- Ricoh MP 401SPF
+- Samsung ProXpress C2620 DW
+- Xerox C315

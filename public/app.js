@@ -33,9 +33,11 @@ class Queue {
 const app = {
     manufacturers: 'HP,IBM,Advent,Apple,Brother,Canon,Compaq,Dell,Epson,Fargo,iHome,Kodak,Kyocera,' +
         'Lexmark,OKI,Polaroid,Panasonic,Pantum,Philips,Ricoh,Pitney Bowes,Samsung,Sharp,Utax,Xerox',
+    delay: 100, // Delay between requests to prevent flooding
+    alertDelay: 2600, // Show alert message {app.alertDelay} ms
     init: () => {
         if(typeof $ !== 'function' || typeof axios !== 'function') {
-            return setTimeout(app.init, 100);
+            return setTimeout(app.init, app.delay);
         }
         app.lastAction = 'init';
         app.manufacturers = app.manufacturers.split(',');
@@ -46,7 +48,9 @@ const app = {
         app.tablesorter('#printers');
         $('#printers>tbody>tr').click(app.rowClick);
         // Autofocus in modal
-        $('.modal').on('shown.bs.modal', function() {$(this).find('[autofocus]').focus();});
+        $('.modal').on('shown.bs.modal', function() {
+            $(this).find('[autofocus]').focus();
+        });
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         const forms = document.getElementsByClassName('needs-validation');
         // Loop over them and prevent submission
@@ -67,9 +71,11 @@ const app = {
             $(this).find('[autofocus]').focus();
         });
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
-        $('#app')[0].style.display='block';
     },
     rowClick: (e) => {
+        if(app.queue) {
+            return app.alert("Please wait until the end of the import procedure.");
+        }
         let t = e.target;
         while (t.tagName !== 'TR') t = t.parentElement;
         app.LastPrinter = {
@@ -107,8 +113,7 @@ const app = {
     getModel: (name) => {
         const brand = app.getBrand(name), n = name.toString()
             .replace(/[^a-z0-9 -]+/gi, " ")
-            .trim()
-            .substring(brand.length).trim();
+            .trim().substring(brand.length).trim();
         // @@Know how: remove words "colour", "laser", "printer" in Dell models
         if(brand == 'Dell') return n.replace(/(colour|laser|printer) /i,'');
         // @@Know how: remove postfix DWF in Epson models
@@ -147,7 +152,7 @@ const app = {
     },
     addPrinter: (name) => {
         const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
-        const bad = (msg) => { app.alert(msg); app.finally(); }
+        const bad = (msg) => { app.alert(msg); app.finally(true); }
         $('#add-printer-modal').modal('hide');
         app.lastAction = 'add printer';
         if(!brand) return bad("Failed to add "+n+"<br>Unknown printer manufacturer.");
@@ -185,14 +190,15 @@ const app = {
                 (error.response && error.response.statusText? ' -- ' + error.response.statusText : ''));
         app.alert(msg);
     },
-    finally: () => {
+    finally: (nodelay) => {
         if(app.lastAction == 'update printer') $('#detailsModal').modal('hide');
         if(app.lastAction == 'delete printer') app.LastPrinter = false;
         if(app.lastAction == 'add printer' && app.queue) {
             if(!app.queue.isEmpty()) {
                 // Small delay to prevent "429 Too Many Requests" error
-                return setTimeout(app.qNext, 100);
+                return setTimeout(app.qNext, nodelay ? 0 : app.delay);
             }
+            document.getElementById('plus').classList.remove('disapear'); // Show "Plus" button
             app.progress(100);
             delete app.queue; // Destroy queue
         }
@@ -228,6 +234,7 @@ const app = {
             event.preventDefault();
             let lst = val.split('\n');
             if(lst.length<1) return;
+            document.getElementById('plus').classList.add('disapear'); // Hide "Plus" button
             app.progress(0);
             app.queue = new Queue(app.qCounter);
             lst.forEach((n) => app.queue.enqueue(n));
@@ -238,13 +245,14 @@ const app = {
         if(!$("#alert>span").length) return alert(text);
         $("#alert>span").html(text);
         $("#alert").show();
-        setTimeout(() => $("#alert").hide(), 2500);
+        setTimeout(() => $("#alert").hide(), app.alertDelay);
     },
-    mask: (on) => $('#mask')[0].classList[on?'add':'remove']('loading'),
     progress: (percent) => {
         if (!app.indicator) app.indicator = new ldBar('#indicator');
         app.indicator.set(parseInt(percent));
-        if(parseInt(percent) === 100) setTimeout(() => $('#indicator').hide(), 500);
+        if(parseInt(percent) >= 100) {
+            setTimeout(() => $('#indicator').hide(), app.delay);
+        }
         else $('#indicator').show();
     },
     download_csv: () => {
