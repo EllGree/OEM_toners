@@ -112,14 +112,17 @@ class Printer extends Model {
         $response = (object) ['price'=>(object)['normal'=>0,'high'=>0],'normal'=>[],'high'=>[],'other'=>[]];
         $colors = $normal = $high = $other = $types = [];
         $parts = $this->parts()->select()->orderByDesc('yield')->get();
+        $previousYield = 0;
         foreach ($parts as $part) {
             extract($part->getAttributes());
             if(!in_array($type, ["standard", "economy", "high yield"])) {
-                if(isset($types[$type])) continue; // Unique type for equipment
-                if(!$yield) $yield = 150000; // // transfer belt, waste toner, drum unit etc.
-                $perCopy = round($price / $yield,4);
-                $types[$type] = true;
                 $color = 'n/a';
+                if($yield > 0) $previousYield = $yield;
+                else if($previousYield > 0) $yield = $previousYield;
+                else $yield = $previousYield = 150000; // // transfer belt, waste toner, drum unit etc.
+                if(isset($types[$type])) continue; // Unique type for equipment
+                else $types[$type] = true;
+                $perCopy = round($price / $yield,4);
                 $other[] = (object) compact('name', 'type', 'color', 'price', 'yield', 'perCopy');
             } else {
                 if (!isset($colors[$color])) $colors[$color] = [];
@@ -134,7 +137,7 @@ class Printer extends Model {
             foreach ($parts as $part) {
                 if($part->yield > 0) $previousYield = $part->yield;
                 else if($previousYield > 0) $part->yield = $previousYield;
-                else $part->yield = $previousYield = match ($type) {
+                else $part->yield = $previousYield = match ($part->type) {
                     "standard" => 2500,
                     "economy" => 200,
                     "high yield" => 4000
