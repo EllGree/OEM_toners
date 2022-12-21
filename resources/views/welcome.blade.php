@@ -242,7 +242,7 @@
                         </button>
                     </div>
                     <div class="tab-pane hidden" id="groups" role="tabpanel" aria-labelledby="groups-tab">
-                        <table id="printerGroups">
+                        <table id="printerGroups" class="tablesorter-blue">
                             <thead>
                             <tr>
                                 <th>Name</th>

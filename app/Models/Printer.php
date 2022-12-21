@@ -33,12 +33,10 @@ class Printer extends Model {
     public $fillable = ['name', 'coverage'];
 
     public function parts() {
-
         return $this->hasMany(Part::class);
     }
 
-    public function groupsDebug() {
-//        $response = '<pre>'.print_r($this->getGroups(), 1);
+    public function groupsDebug() { // Deprecated:
         $response = '<pre>';
         // Min yield,
         $cartridges = $this->parts()
@@ -110,42 +108,36 @@ class Printer extends Model {
         return $response;
     }
 
-    private function calcGroup($part, $mindCoverage = false) {
-        extract($part->getAttributes());
-        $price = empty($price) ? 10 : $price;
-        $yield = empty($yield) ? 300 : $yield;
-        $perCopy = $mindCoverage ?
-            round($this->coverage * $price / $yield / 5,4) :
-            round($price / $yield,4);
-        return (object) compact('name', 'type', 'color', 'price', 'yield', 'perCopy');
-    }
-
     public function getGroups() {
         $response = (object) ['normal' => [], 'high' => [], 'other' => [],
             'price' => (object)['normal' => 0, 'high' => 0]];
         // Min yield -- normal cartridges
         $cartridges = $this->parts()
             ->selectRaw('*,min(yield) as yield')
-            ->where('name', 'like', '%Cartridge%')
+            ->whereIn('type', ["standard","economy"])
+//            ->where('name', 'like', '%Cartridge%')
             ->groupBy('color')->get();
         foreach ($cartridges as $cartridge) {
-            $response->normal[] = $this->calcGroup($cartridge, true);
+            $response->normal[] = $this->calcGroupDetails($cartridge, true, $cartridges);
         }
         // Max yield
         $cartridges = $this->parts()
             ->selectRaw('*,max(yield) as yield')
-            ->where('name', 'like', '%Cartridge%')
+            ->where('type', '=',"high yield")
+            //->where('name', 'like', '%Cartridge%')
             ->groupBy('color')->get();
         foreach ($cartridges as $cartridge) {
-            $response->high[] = $this->calcGroup($cartridge, true);
+            $response->high[] = $this->calcGroupDetails($cartridge, true, $cartridges);
         }
         // Other equipment
         $others = $this->parts()->selectRaw('*,max(yield) as yield')
-            ->where('name', 'not like', '%Cartridge%')
+            //->where('name', 'not like', '%Cartridge%')
+            ->whereNotIn('type', ["standard","high yield","economy"])
             ->orderBy('price', 'asc')
-            ->groupBy('type', 'color')->get();
+            ->groupBy('type')->get();
+
         foreach ($others as $part) {
-            $response->other[] = $this->calcGroup($part);
+            $response->other[] = $this->calcGroupDetails($part, false, $others);
         }
         // Calc high yield & normal prices:
         foreach ($response->normal as $p) $response->price->normal += $p->perCopy;
@@ -157,4 +149,17 @@ class Printer extends Model {
         return $response;
     }
 
+    private function calcGroupDetails($part, $mindCoverage = false, $parts) {
+        extract($part->getAttributes());
+        $price = empty($price) ? 10.0 : $price;
+        if(empty($yield)) foreach($parts as $p) {
+            if(empty($yield) && $p->getAttribute('yield')) $yield = $p->getAttribute('yield');
+            else if($p->getAttribute('type') == $type &&  $p->getAttribute('color') == $color) $yield = $p->getAttribute('yield');
+        }
+        $yield = empty($yield) ? 300 : $yield;
+        $perCopy = $mindCoverage ?
+            round($this->coverage * $price / $yield / 5,4) :
+            round($price / $yield,4);
+        return (object) compact('name', 'type', 'color', 'price', 'yield', 'perCopy');
+    }
 }

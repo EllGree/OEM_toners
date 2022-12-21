@@ -36,14 +36,11 @@ const app = {
     delay: 130, // Delay between requests to prevent flooding
     alertDelay: 3000, // Show alert message {app.alertDelay} ms
     init: () => {
-        if(typeof $ !== 'function' || typeof axios !== 'function') {
-            return setTimeout(app.init, app.delay);
-        }
         app.lastAction = 'init';
         app.manufacturers = app.manufacturers.split(',');
         app.api = axios.create({
             headers: { "content-type": "application/x-www-form-urlencoded" },
-            baseURL: window.location.origin + "/api",
+            baseURL: window.location.origin + "/api"
         });
         app.tablesorter('#printers');
         $('#printers>tbody>tr').click(app.rowClick);
@@ -59,8 +56,8 @@ const app = {
                 if (form.checkValidity() === false) {
                     event.preventDefault();
                     event.stopPropagation();
-                } else { // Valid -> check handlers by form id:
-                    app.submitListeners[form.id] && app.submitListeners[form.id](event);
+                } else if(app.submitListeners[form.id]) { // Valid -> check handlers by form id:
+                    app.submitListeners[form.id](event);
                 }
                 form.classList.add('was-validated');
             }, false);
@@ -144,17 +141,29 @@ const app = {
         }
         if(groups.high.length) {
             html += '<tr><th colspan=6>High Yield Cartridges</th></tr>';
-            groups.normal.forEach((part) => html += add(part));
+            groups.high.forEach((part) => html += add(part));
         }
         if(groups.other.length) {
             html += '<tr><th colspan=6>Other Equipment</th></tr>';
-            groups.normal.forEach((part) => html += add(part));
+            groups.other.forEach((part) => html += add(part));
         }
         const label = groups.other.length ? 'Cartridge + Equipment' : 'Cartridge';
-        html += '<tr><th colspan=3>Total '+label+':</th><th colspan=3>Total High Yield '+label+':</th></tr>';
-        html += '<tr><td colspan=3>$'+groups.price.normal+' per copy</td>'+
-            '<td colspan=3>$'+groups.price.high+' per copy</td></tr>';
+        html += '<tr class="centered"><th>Total '+label+':</th>'+
+            '<th colspan=5>Total High Yield '+label+':</th></tr>' +
+            '<tr class="centered"><td>$'+groups.price.normal+' per copy</td>'+
+            '<td colspan=5>$'+groups.price.high+' per copy</td></tr>';
         $('#printerGroupsBody').html(html);
+    },
+    showDetails: (data) => {
+        app.lastReply = data;
+        $('#detailsModalLabel').html(data.name);
+        const add = (r) => '<tr><td>'+r.name+'</td><td>'+r.type+'</td><td>'+r.color+'</td><td>'+
+            r.yield+'</td><td>'+r.price+'</td></tr>';
+        $('#printerPartsBody').html(data.parts.map((r) => add(r)).join(''));
+        app.tablesorter('#printerParts');
+        app.showGroups(data.groups);
+        $('#detailsModal').modal('show');
+
     },
     rowClick: (e) => {
         if(app.checkQueue()) return;
@@ -165,22 +174,8 @@ const app = {
         $('#info-coverage').val(app.LastPrinter.coverage);
         app.lastAction = 'fetch printer details';
         app.api.get("/printer/"+app.LastPrinter.id)
-            .then((reply) => {
-                let html = '';
-                app.lastReply = reply.data;
-                $('#detailsModalLabel').html(reply.data.name);
-                Array.from(reply.data.parts).forEach((r) => {
-                    html += '<tr><td>' + r.name + '</td><td>' +
-                        r.type + '</td><td>' +
-                        r.color + '</td><td>' +
-                        r.yield + '</td><td>' +
-                        r.price + '</td></tr>';
-                });
-                $('#printerPartsBody').html(html);
-                app.showGroups(reply.data.groups);
-                app.tablesorter('#printerParts');
-                $('#detailsModal').modal('show');
-            }).catch(app.catchError).finally(app.finally);
+            .then((reply) => app.showDetails(reply.data))
+            .catch(app.catchError).finally(app.finally);
     },
     getModel: (name) => {
         const brand = app.getBrand(name), n = name.toString()
@@ -278,32 +273,16 @@ const app = {
     },
     finally: (nodelay) => {
         if(app.lastAction == 'update printer') $('#detailsModal').modal('hide');
-        if(app.lastAction == 'delete printer') {
-            app.LastPrinter = false;
-            if(app.queue) {
-                if(!app.queue.isEmpty()) {
-                    // Small delay to prevent "429 Too Many Requests" error
-                    return setTimeout(app.qNext, nodelay ? 0 : app.delay);
-                }
-                app.progress(100);
-                delete app.queue; // Destroy queue
-                app.buttonsRefresh();
-            }
-        }
+        if(app.lastAction == 'delete printer') app.LastPrinter = false;
         if(app.lastAction == 'add printer' && app.queue) {
-            if(!app.queue.isEmpty()) {
-                // Small delay to prevent "429 Too Many Requests" error
+            if(!app.queue.isEmpty()) { // Small delay to prevent "429 Too Many Requests" error
                 return setTimeout(app.qNext, nodelay ? 0 : app.delay);
             }
             app.progress(100);
             delete app.queue; // Destroy queue
         }
     },
-    qNext: () => { // Next printer from Bulk procedure
-        const nxt = app.queue.dequeue();
-        if(app.lastAction == 'add printer') app.addPrinter(nxt)
-        else if(app.lastAction == 'delete printer') app.deletePrinter(nxt);
-    },
+    qNext: () => app.addPrinter(app.queue.dequeue()),
     qCounter: (current, full) => { // Callback for queue
         const percent = Math.round(10000 - current * 10000 / full) / 100;
         app.progress(percent);
@@ -349,7 +328,7 @@ const app = {
             // this is the default setting
             cssChildRow : "tablesorter-childRow",
             // initialize zebra and filter widgets
-            widgets : [ "zebra", "filter", "uitheme"],
+            widgets : ["zebra", "filter", "uitheme"],
             widgetOptions: {
                 // include child row content while filtering, if true
                 filter_childRows  : true,
@@ -365,17 +344,16 @@ const app = {
         t.delegate( '.toggle', 'click' ,function() {
             // use "nextUntil" to toggle multiple child rows
             // toggle table cells instead of the row
-            $( this ).closest( 'tr' )
-                .nextUntil( 'tr.tablesorter-hasChildRow' )
+            $(this).closest( 'tr' ).nextUntil('tr.tablesorter-hasChildRow')
                 .find( 'td' ).toggleClass( 'hidden' );
             return false;
         });
         $('button.toggle-combined').click( function() {
             const wo = $table1[0].config.widgetOptions, o = !wo.filter_childRows;
             wo.filter_childRows = o;
-            $( '.state1' ).html( o.toString() );
+            $('.state1').html(o.toString());
             // update filter; include false parameter to force a new search
-            t.trigger( 'search', false );
+            t.trigger('search', false);
             return false;
         });
     },

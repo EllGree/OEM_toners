@@ -12,7 +12,6 @@ body {font-family: 'Nunito', sans-serif;background-color:#d8e0e9}
 
 #printerParts thead {background-color: #6c7ae0; color: white;height: 34px;}
 #printerParts tbody tr td {border: solid 1px #d8d8d8;border-left: 0;border-right: 0;}
-/* #printerParts tbody tr:nth-child(2n) {background-color: whitesmoke;} */
 
 #alert {position: fixed;top: 133px;left: max(5%, calc(50% - 360px));width: 720px;max-width: 90%;font-weight: 600;z-index: 10001;border-width: 5px;box-shadow: 6px 6px 9px -4px rgb(0 0 0 / 43%);}
 
@@ -38,7 +37,8 @@ input[type=checkbox]:active {box-shadow: 0 0 1px 8px rgb(0 63 135 / 29%); outlin
 #printers>tbody>tr:hover>td {background-color: #99bfe6;}
 
 #printers .btn {width:100%; margin-bottom:3px; margin-top:3px;}
-
+#printerGroupsBody .centered th, #printerGroupsBody .centered td {text-align: center;width:50%}
+#printerGroupsBody .centered td {padding-top:1rem;padding-bottom:1rem;}
 
 .btn svg {fill: currentColor;display: inline-block;height: 22px;margin-top: -3px;}
 .btn-dark {color: #fff;background-color: #06274d;border-color: #06274d;}
