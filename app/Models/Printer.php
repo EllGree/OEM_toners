@@ -117,6 +117,12 @@ class Printer extends Model {
             ->whereIn('type', ["standard","economy"])
 //            ->where('name', 'like', '%Cartridge%')
             ->groupBy('color')->get();
+        if(count($cartridges)<1) {
+            $cartridges = $this->parts()
+                ->selectRaw('*,min(yield) as yield')
+                ->where('name', 'like', '%Cartridge%')
+                ->groupBy('color')->get();
+        }
         foreach ($cartridges as $cartridge) {
             $response->normal[] = $this->calcGroupDetails($cartridge, true, $cartridges);
         }
@@ -124,8 +130,13 @@ class Printer extends Model {
         $cartridges = $this->parts()
             ->selectRaw('*,max(yield) as yield')
             ->where('type', '=',"high yield")
-            //->where('name', 'like', '%Cartridge%')
             ->groupBy('color')->get();
+        if(count($cartridges)<1) {
+            $cartridges = $this->parts()
+                ->selectRaw('*,max(yield) as yield')
+                ->where('name', 'like', '%Cartridge%')
+                ->groupBy('color')->get();
+        }
         foreach ($cartridges as $cartridge) {
             $response->high[] = $this->calcGroupDetails($cartridge, true, $cartridges);
         }
@@ -135,7 +146,6 @@ class Printer extends Model {
             ->whereNotIn('type', ["standard","high yield","economy"])
             ->orderBy('price', 'asc')
             ->groupBy('type')->get();
-
         foreach ($others as $part) {
             $response->other[] = $this->calcGroupDetails($part, false, $others);
         }
