@@ -136,6 +136,8 @@ const app = {
     showGroups: (groups) => {
         let html = '', add = (p) => '<tr><td>'+p.name+'</td><td>'+p.type+'</td><td>'+
             p.color+'</td><td>'+p.yield+'</td><td>$'+p.price+'</td><td>$'+p.perCopy+'</td></tr>';
+        groups.price.normal = Math.round(groups.price.normal * 1000) / 1000;
+        groups.price.high = Math.round(groups.price.high * 1000) / 1000;
         if(groups.normal.length) {
             html += '<tr><th colspan=6>Standard Cartridges</th></tr>';
             groups.normal.forEach((part) => html += add(part));
@@ -149,8 +151,9 @@ const app = {
             groups.normal.forEach((part) => html += add(part));
         }
         const label = groups.other.length ? 'Cartridge + Equipment' : 'Cartridge';
-        html += '<tr><th colspan=3>Total '+label+':</th><th colspan=3>Total HY '+label+':</th></tr>';
-        html += '<tr><td colspan=3>$'+groups.price.normal+' per copy</td><td colspan=3>$'+groups.price.high+' per copy</td></tr>';
+        html += '<tr><th colspan=3>Total '+label+':</th><th colspan=3>Total High Yield '+label+':</th></tr>';
+        html += '<tr><td colspan=3>$'+groups.price.normal+' per copy</td>'+
+            '<td colspan=3>$'+groups.price.high+' per copy</td></tr>';
         $('#printerGroupsBody').html(html);
     },
     rowClick: (e) => {
