@@ -33,17 +33,14 @@ class Queue {
 const app = {
     manufacturers: 'HP,IBM,Advent,Apple,Brother,Canon,Compaq,Dell,Epson,Fargo,iHome,Kodak,Kyocera,' +
         'Lexmark,OKI,Polaroid,Panasonic,Pantum,Philips,Ricoh,Pitney Bowes,Samsung,Sharp,Utax,Xerox',
-    delay: 100, // Delay between requests to prevent flooding
-    alertDelay: 2600, // Show alert message {app.alertDelay} ms
+    delay: 130, // Delay between requests to prevent flooding
+    alertDelay: 3000, // Show alert message {app.alertDelay} ms
     init: () => {
-        if(typeof $ !== 'function' || typeof axios !== 'function') {
-            return setTimeout(app.init, app.delay);
-        }
         app.lastAction = 'init';
         app.manufacturers = app.manufacturers.split(',');
         app.api = axios.create({
             headers: { "content-type": "application/x-www-form-urlencoded" },
-            baseURL: window.location.origin + "/api",
+            baseURL: window.location.origin + "/api"
         });
         app.tablesorter('#printers');
         $('#printers>tbody>tr').click(app.rowClick);
@@ -59,8 +56,8 @@ const app = {
                 if (form.checkValidity() === false) {
                     event.preventDefault();
                     event.stopPropagation();
-                } else { // Valid -> check handlers by form id:
-                    app.submitListeners[form.id] && app.submitListeners[form.id](event);
+                } else if(app.submitListeners[form.id]) { // Valid -> check handlers by form id:
+                    app.submitListeners[form.id](event);
                 }
                 form.classList.add('was-validated');
             }, false);
@@ -71,44 +68,114 @@ const app = {
             $(this).find('[autofocus]').focus();
         });
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
+        app.initCheckboxes();
+        app.initButtons();
+        Array.from(document.querySelectorAll('.tablesorter-header')).forEach((el) => {
+            el.addEventListener('focus',(e) => e.target.innerText?true:document.querySelector('.toggleAll').focus());
+        });
+    },
+    getButtons: () => Array.from(document.querySelectorAll('#printers .btn')),
+    initButtons: () => {
+        const listeners = {}; // Button keys shortcut listeners
+        app.getButtons().forEach((b) => {
+            const key = b.querySelector('u');
+            if(key) listeners[key.innerText.toLowerCase()] = () => b.click();
+            b.addEventListener('click', (e) => {
+                if(app.checkQueue()) return e.preventDefault();
+                if(b.id == 'DeleteButtonSelected') return app.deletePrinters();
+                if(b.id == 'ExportButtonSelected' || b.id == 'ExportAllButton') return app.exportPrinters();
+            });
+        });
+        document.addEventListener('keyup', (e) => {
+            if(e.target.tagName.match(/(input|textarea)/i) ||
+                document.querySelector('#add-printer-modal.show') ||
+                document.querySelector('#detailsModal.show')) return;
+            const handler = listeners[e.key.toLowerCase()];
+            if(typeof handler == 'function') handler();
+        });
+        app.buttonsRefresh();
+    },
+    buttonsRefresh: () => {
+        const disabled = app.checkboxes(true).length == 0;
+        Array.from(document.querySelectorAll('#printers .btn'))
+            .filter((b) => b.id.match(/Selected$/))
+            .forEach((b) => (b.disabled = disabled));
+    },
+    initCheckboxes: () => {
+        app.checkboxes().forEach((c) => c.addEventListener('click', app.checkboxClick));
+    },
+    checkboxes: (on, visibleOnly) => { // Updated: select visible checkboxes only
+        const sel = '#printers tbody tr'+(visibleOnly?':not(.filtered)':'')+' td .printer-selector'+(on?':checked':'');
+        return Array.from(document.querySelectorAll(sel));
+    },
+    checkedIds: () => app.checkboxes(true).map((el)=>el.parentElement.parentElement.dataset.id),
+    toggleChecked: () => app.checkboxes(false, true).forEach((c) => c.click()),
+    checkboxClick: (e) => {
+        e.stopPropagation();
+        app.buttonsRefresh();
+    },
+    getLastPrinter: (el) => {
+        let t = el;
+        while (t.tagName !== 'TR') t = t.parentElement;
+        if(t.tagName !== 'TR') return false;
+        return {id: t.dataset.id, name: t.dataset.name, coverage:parseInt(t.children[3].innerText),
+            manufacturer:t.children[1].innerText, model:t.children[2].innerText};
+    },
+    checkQueue: () => app.queue ? app.alert("Please wait until the end of the bulk procedure.") : false,
+    exportPrinters: () => {
+        const ids = app.checkedIds(), param = ids.length > 0 ? ids.join(',') : 'all';
+        app.lastAction = 'export';
+        app.api.get("/export/"+param)
+            .then((reply) => {
+                app.download_csv('export.csv', reply.data);
+            }).catch(app.catchError).finally(app.finally);
+    },
+    showGroups: (groups) => {
+        let html = '', add = (p) => '<tr><td>'+p.name+'</td><td>'+p.type+'</td><td>'+
+            p.color+'</td><td>'+p.yield+'</td><td>$'+p.price+'</td><td>$'+p.perCopy+'</td></tr>';
+        groups.price.normal = Math.round(groups.price.normal * 1000) / 1000;
+        groups.price.high = Math.round(groups.price.high * 1000) / 1000;
+        if(groups.normal.length) {
+            html += '<tr><th colspan=6>Standard Cartridges</th></tr>';
+            groups.normal.forEach((part) => html += add(part));
+        }
+        if(groups.high.length) {
+            html += '<tr><th colspan=6>High Yield Cartridges</th></tr>';
+            groups.high.forEach((part) => html += add(part));
+        }
+        if(groups.other.length) {
+            html += '<tr><th colspan=6>Other Equipment</th></tr>';
+            groups.other.forEach((part) => html += add(part));
+        }
+        const label = groups.other.length ? 'Cartridges + Equipment' : 'Cartridges only';
+        html += '<tr class="centered"><th>Total Standard '+label+':</th>'+
+            '<th colspan=5>Total High Yield '+label+':</th></tr>' +
+            '<tr class="centered"><td>$'+groups.price.normal+' per copy</td>'+
+            '<td colspan=5>$'+groups.price.high+' per copy</td></tr>';
+        $('#printerGroupsBody').html(html);
+    },
+    showDetails: (data) => {
+        app.lastReply = data;
+        $('#detailsModalLabel').html(data.name);
+        const add = (r) => '<tr><td>'+r.name+'</td><td>'+r.type+'</td><td>'+r.color+'</td><td>'+
+            r.yield+'</td><td>'+r.price+'</td></tr>';
+        $('#printerPartsBody').html(data.parts.map((r) => add(r)).join(''));
+        app.tablesorter('#printerParts');
+        app.showGroups(data.groups);
+        $('#detailsModal').modal('show');
+
     },
     rowClick: (e) => {
-        if(app.queue) {
-            return app.alert("Please wait until the end of the import procedure.");
-        }
-        let t = e.target;
-        while (t.tagName !== 'TR') t = t.parentElement;
-        app.LastPrinter = {
-            id:t.dataset.id,
-            name:t.dataset.name,
-            coverage:parseInt(t.children[2].innerText),
-            manufacturer:t.children[0].innerText,
-            model:t.children[1].innerText
-        };
+        if(app.checkQueue()) return;
+        app.LastPrinter = app.getLastPrinter(e.target);
+        if(app.LastPrinter == false) return; // Not found;
         $('#info-manufacturer').val(app.LastPrinter.manufacturer);
         $('#info-model').val(app.LastPrinter.model);
         $('#info-coverage').val(app.LastPrinter.coverage);
         app.lastAction = 'fetch printer details';
         app.api.get("/printer/"+app.LastPrinter.id)
-            .then((reply) => {
-                let html = '';
-                app.lastReply = reply.data;
-                console.log(reply.data);
-                $('#detailsModalLabel').html(reply.data.name);
-                Array.from(reply.data.parts).forEach((r) => {
-                    html += '<tr><td>' + r.name + '</td><td>' +
-                        r.type + '</td><td>' +
-                        r.color + '</td><td>' +
-                        r.yield + '</td><td>' +
-                        r.price + '</td></tr>';
-                });
-                $('#printerPartsBody').html(html);
-                $('#groups').html(reply.data.groups);
-                app.tablesorter('#printerParts');
-                $('#detailsModal').modal('show');
-            })
-            //.catch(app.catchError)
-            .finally(app.finally);
+            .then((reply) => app.showDetails(reply.data))
+            .catch(app.catchError).finally(app.finally);
     },
     getModel: (name) => {
         const brand = app.getBrand(name), n = name.toString()
@@ -129,26 +196,30 @@ const app = {
         });
         return found.length ? found[0] : '';
     },
-    addPrinterRow: (name, id, coverage) => {
-        const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
-        const $row = $('<tr data-name="'+n+'" data-id="'+id+'"><td>'+brand+'</td><td>'+model+'</td><td>'+(coverage ?? '5')+'%</td></tr>');
-        const callback = () => $('#printers>tbody>tr[data-id="'+id+'"]').click(app.rowClick);
-        $( '#printers' ).find('tbody').append($row).trigger('addRows', [$row, true, callback]);
-    },
     updatePrinterRow: () => {
         if(!app.LastPrinter) return;
         const row = $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]');
         if(row.length<1) return;
-        row.children()[0].innerText = app.LastPrinter.manufacturer;
-        row.children()[1].innerText = app.LastPrinter.model;
-        row.children()[2].innerText = app.LastPrinter.coverage + '%';
+        row.children()[1].innerText = app.LastPrinter.manufacturer;
+        row.children()[2].innerText = app.LastPrinter.model;
+        row.children()[3].innerText = app.LastPrinter.coverage + '%';
         row[0].dataset.name = app.LastPrinter.name;
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
     },
-    deletePrinterRow: () => {
-        if(!app.LastPrinter) return;
-        $('#printers>tbody>tr[data-id="'+app.LastPrinter.id+'"]').remove();
+    deletePrinterRow: (id) => {
+        if(!id && app.LastPrinter) id = app.LastPrinter.id;
+        if(!id) return;
+        $('#printers>tbody>tr[data-id="'+id+'"]').remove();
         $('#printers').trigger('update').trigger("appendCache").trigger("applyWidgets");
+    },
+    addPrinterRow: (name, id, coverage) => {
+        const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
+        const $row = $('<tr data-name="'+n+'" data-id="'+id+'">'+
+            '<td><input type="checkbox" class="printer-selector"></td>'+
+            '<td>'+brand+'</td><td>'+model+'</td><td>'+(coverage ?? '5')+'%</td></tr>');
+        const callback = () => $('#printers>tbody>tr[data-id="'+id+'"]').click(app.rowClick);
+        $( '#printers' ).find('tbody').append($row).trigger('addRows', [$row, true, callback]);
+        app.initCheckboxes();
     },
     addPrinter: (name) => {
         const brand = app.getBrand(name), model = app.getModel(name), n = brand + ' ' + model;
@@ -172,14 +243,24 @@ const app = {
             .catch(app.catchError)
             .finally(app.finally);
     },
-    deletePrinter: () => {
+    deletePrinters: () => {
+        const lst = app.checkedIds();
+        if(lst.length == 0) return;
+        app.lastAction = 'delete printers';
+        app.api.delete('/printer/' + lst.join(','))
+            .then(() => lst.forEach((id) => app.deletePrinterRow(id)))
+            .catch(app.catchError)
+            .finally(app.finally);
+    },
+    deletePrinter: (checkbox) => {
+        if(checkbox) app.LastPrinter = app.getLastPrinter(checkbox);
         if(!app.LastPrinter) return;
         $('#detailsModal').modal('hide');
         app.lastAction = 'delete printer';
         app.api.delete('/printer/' + app.LastPrinter.id)
             .then(app.deletePrinterRow)
             .catch(app.catchError)
-            .finally(app.finally)
+            .finally(app.finally);
     },
     catchError: (error) => {
         let txt = 'Failed to '+app.lastAction.trim();
@@ -194,80 +275,49 @@ const app = {
         if(app.lastAction == 'update printer') $('#detailsModal').modal('hide');
         if(app.lastAction == 'delete printer') app.LastPrinter = false;
         if(app.lastAction == 'add printer' && app.queue) {
-            if(!app.queue.isEmpty()) {
-                // Small delay to prevent "429 Too Many Requests" error
+            if(!app.queue.isEmpty()) { // Small delay to prevent "429 Too Many Requests" error
                 return setTimeout(app.qNext, nodelay ? 0 : app.delay);
             }
-            document.getElementById('plus').classList.remove('disapear'); // Show "Plus" button
             app.progress(100);
             delete app.queue; // Destroy queue
         }
     },
-    qNext: () => app.addPrinter(app.queue.dequeue()), // Next printer from Bulk import
+    qNext: () => app.addPrinter(app.queue.dequeue()),
     qCounter: (current, full) => { // Callback for queue
         const percent = Math.round(10000 - current * 10000 / full) / 100;
         app.progress(percent);
-    },
-    submitListeners: {
-        "update-printer-form": function(event) {
-            const form = event.target;
-            event.preventDefault();
-            console.dir(form);
-            if (event.target[0].value == app.LastPrinter.manufacturer &&
-                event.target[1].value == app.LastPrinter.model &&
-                parseInt(event.target[2].value) == parseInt(app.LastPrinter.coverage)) {
-                return app.alert("Nothing to update here.");
-            }
-            app.LastPrinter.manufacturer = event.target[0].value;
-            app.LastPrinter.model = event.target[1].value;
-            app.LastPrinter.coverage = event.target[2].value;
-            app.LastPrinter.name = app.LastPrinter.manufacturer + ' ' + app.LastPrinter.model;
-            app.updatePrinter();
-        },
-        "add-printer-form": function(event) {
-            const val = event.target[0].value.toString().trim();
-            event.preventDefault();
-            if(val) app.addPrinter(val);
-        },
-        "add-printers-form": function(event) {
-            const val = event.target[0].value.toString().trim();
-            event.preventDefault();
-            let lst = val.split('\n');
-            if(lst.length<1) return;
-            document.getElementById('plus').classList.add('disapear'); // Hide "Plus" button
-            app.progress(0);
-            app.queue = new Queue(app.qCounter);
-            lst.forEach((n) => app.queue.enqueue(n));
-            app.addPrinter(app.queue.dequeue()); // Start Bulk import process
-        }
     },
     alert: (text) => {
         if(!$("#alert>span").length) return alert(text);
         $("#alert>span").html(text);
         $("#alert").show();
         setTimeout(() => $("#alert").hide(), app.alertDelay);
+        return true;
     },
     progress: (percent) => {
         if (!app.indicator) app.indicator = new ldBar('#indicator');
         app.indicator.set(parseInt(percent));
-        if(parseInt(percent) >= 100) {
-            setTimeout(() => $('#indicator').hide(), app.delay);
-        }
+        if(parseInt(percent) >= 100) setTimeout(() => $('#indicator').hide(), app.delay);
         else $('#indicator').show();
     },
-    download_csv: () => {
-        const parts = app.lastReply.parts ?? false;
-        if(!parts) return;
-        const fields = Object.keys(parts[0]).filter((e)=>!e.match(/id$/));
-        const frec = (r) => fields.map((f)=>r[f].toString().replace(/[,]+/,'')).join(',');
-        const blob = new Blob([fields.join(',')+'\n'+parts.map(frec).join('\n')], {type: 'text/csv;charset=utf-8;'});
+    download_csv: (filename, content) => {
+        const blob = new Blob([content.toString()], {type: 'text/csv;charset=utf-8;'});
         const link = document.createElement("a");
         link.setAttribute("href", URL.createObjectURL(blob));
-        link.setAttribute("download", app.lastReply.name.replace(/[^a-zA-Z0-9]+/g,'_')+'.csv');
+        link.setAttribute("download", Date().substring(4,25).replace(/[^a-z0-9]+/ig,'-') + filename);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    },
+    download_parts: () => {
+        const parts = app.lastReply.parts ?? false;
+        if(!parts) return;
+        const fields = Object.keys(parts[0]).filter((e)=>!e.match(/id$/));
+        const frec = (r) => fields.map((f)=>r[f].toString().replace(/[,]+/,'')).join(',');
+        const content = fields.join(',')+'\n'+parts.map(frec).join('\n');
+        const fname = app.lastReply.name.replace(/[^a-zA-Z0-9]+/g,'_')+'.csv';
+        app.download_csv(fname, content);
     },
     tablesorter: (selector) => {
         const sel = selector ?? 'table';
@@ -278,7 +328,7 @@ const app = {
             // this is the default setting
             cssChildRow : "tablesorter-childRow",
             // initialize zebra and filter widgets
-            widgets : [ "zebra", "filter", "uitheme"],
+            widgets : ["zebra", "filter", "uitheme"],
             widgetOptions: {
                 // include child row content while filtering, if true
                 filter_childRows  : true,
@@ -294,19 +344,52 @@ const app = {
         t.delegate( '.toggle', 'click' ,function() {
             // use "nextUntil" to toggle multiple child rows
             // toggle table cells instead of the row
-            $( this ).closest( 'tr' )
-                .nextUntil( 'tr.tablesorter-hasChildRow' )
+            $(this).closest( 'tr' ).nextUntil('tr.tablesorter-hasChildRow')
                 .find( 'td' ).toggleClass( 'hidden' );
             return false;
         });
         $('button.toggle-combined').click( function() {
             const wo = $table1[0].config.widgetOptions, o = !wo.filter_childRows;
             wo.filter_childRows = o;
-            $( '.state1' ).html( o.toString() );
+            $('.state1').html(o.toString());
             // update filter; include false parameter to force a new search
-            t.trigger( 'search', false );
+            t.trigger('search', false);
             return false;
         });
+    },
+    submitListeners: {
+        "update-printer-form": function(event) {
+            if(app.checkQueue()) return;
+            const form = event.target;
+            event.preventDefault();
+            if (event.target[0].value == app.LastPrinter.manufacturer &&
+                event.target[1].value == app.LastPrinter.model &&
+                parseInt(event.target[2].value) == parseInt(app.LastPrinter.coverage)) {
+                return app.alert("Nothing to update here.");
+            }
+            app.LastPrinter.manufacturer = event.target[0].value;
+            app.LastPrinter.model = event.target[1].value;
+            app.LastPrinter.coverage = event.target[2].value;
+            app.LastPrinter.name = app.LastPrinter.manufacturer + ' ' + app.LastPrinter.model;
+            app.updatePrinter();
+        },
+        "add-printer-form": function(event) {
+            if(app.checkQueue()) return;
+            const val = event.target[0].value.toString().trim();
+            event.preventDefault();
+            if(val) app.addPrinter(val);
+        },
+        "add-printers-form": function(event) {
+            if(app.checkQueue()) return;
+            const val = event.target[0].value.toString().trim();
+            event.preventDefault();
+            let lst = val.split('\n');
+            if(lst.length<1) return;
+            app.progress(0);
+            app.queue = new Queue(app.qCounter);
+            lst.forEach((n) => app.queue.enqueue(n));
+            app.addPrinter(app.queue.dequeue()); // Start Bulk import process
+        }
     }
 };
 window.addEventListener('load', app.init);

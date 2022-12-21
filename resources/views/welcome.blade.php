@@ -21,20 +21,65 @@
     <table id="printers" class="tablesorter-blue">
         <thead>
             <tr>
+                <th><input type="checkbox" class="toggleAll" title="Toggle visible checkboxes" onclick="app.toggleChecked()" /></th>
                 <th class="filter-select filter-exact" data-placeholder="All Brands">Manufacturer</th>
                 <th>Model</th>
-                <th>Coverage</th>
+                <th class="filter-select filter-exact" data-placeholder="All">Coverage</th>
             </tr>
         </thead>
         <tbody>
         @foreach($printers as $printer)
             <tr data-name="{{$printer->name}}" data-id="{{$printer->id}}">
+                <td><input type="checkbox" class="printer-selector" /></td>
                 <td>{{preg_replace('/ [\d\D]+$/', '', $printer->name)}}</td>
                 <td>{{preg_replace('/^[^ ]+ /', '', $printer->name)}}</td>
                 <td>{{$printer->getAttribute('coverage')}}%</td>
             </tr>
         @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm">
+                                <button type="button" class="btn btn-dark" id="AddPrintersButton"
+                                        data-toggle="modal" data-target="#add-printer-modal">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
+                                    </svg>
+                                    <span><u>A</u>dd Printer(s)</span>
+                                </button>
+                            </div>
+                            <div class="col-sm">
+                                <button type="button" class="btn btn-dark" id="ExportAllButton">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm-1 8V6h2v4h3l-4 4-4-4h3zm6 7H7v-2h10v2z"></path>
+                                    </svg>
+                                    <span><u>E</u>xport all</span>
+                                </button>
+                            </div>
+                            <div class="col-sm">
+                                <button type="button" class="btn btn-dark" disabled id="ExportButtonSelected">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path>
+                                    </svg>
+                                    <span>E<u>x</u>port</span>
+                                </button>
+                            </div>
+                            <div class="col-sm">
+                                <button type="button" class="btn btn-dark" disabled id="DeleteButtonSelected">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12 1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"></path>
+                                    </svg>
+                                    <span><u>D</u>elete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </div>
 
@@ -69,7 +114,11 @@
                                 <div class="invalid-feedback">Please enter the printer name.</div>
                             </div>
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Add printer</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"></path>
+                                    </svg> Add printer
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -83,20 +132,28 @@
                                 <div class="invalid-feedback">Enter a list of printer names to import.</div>
                             </div>
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Add printers</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"></path>
+                                    </svg> Add printers
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"></path>
+                        </svg> Cancel
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<button id="plus" type="button" class="btn btn-primary" title="App Printer(s)" data-toggle="modal" data-target="#add-printer-modal">+</button>
+
 <!-- Modal Printer Details -->
 <div class="modal fade bd-example-modal-lg" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -152,8 +209,16 @@
                                 <div class="invalid-feedback">Please input the coverage.</div>
                             </div>
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Update printer</button>
-                                <button type="button" onclick="app.deletePrinter()" class="btn btn-danger" name="delete">Delete printer</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"></path>
+                                    </svg> Update Printer
+                                </button>
+                                <button type="button" onclick="app.deletePrinter()" class="btn btn-danger" name="delete">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12 1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"></path>
+                                    </svg> Delete Printer
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -170,20 +235,36 @@
                             </thead>
                             <tbody id="printerPartsBody"></tbody>
                         </table>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="app.download_csv()">Download CSV</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="app.download_parts()">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path>
+                            </svg> Download CSV
+                        </button>
                     </div>
                     <div class="tab-pane hidden" id="groups" role="tabpanel" aria-labelledby="groups-tab">
-                        <p><strong>This tab is under development.</strong></p>
-                        <p>Presumably here should be a solution to the combinatorial problem of breaking down consumable parts
-                            (toner, replaceable spare parts, cleaning materials, etc.) into groups, normalize the cost of consumables
-                            (e.g. cost of printing per 1,000 pages), and calculate toner consumption based on a given printer's page coverage.</p>
-                        <p>Unfortunately, I could not formalize the problem, because of the lack of data on yield and/or price of parts,
-                            or the apparent lack of necessary types of parts, I could not even determine the principle of their grouping.</p>
+                        <table id="printerGroups" class="tablesorter-blue">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Color</th>
+                                <th>Yield</th>
+                                <th>Price</th>
+                                <th>Per Copy</th>
+                            </tr>
+                            </thead>
+                            <tbody id="printerGroupsBody"></tbody>
+                        </table>
+
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"></path>
+                    </svg> Close
+                </button>
             </div>
         </div>
     </div>

@@ -30,7 +30,7 @@ Route::get('/printers', function() {
 Route::get('/printer/{printer}', function(Printer $printer) {
     $reply = (object) $printer->getAttributes();
     $reply->parts = $printer->parts;
-    $reply->groups = $printer->groupsDebug();
+    $reply->groups = $printer->getGroups();
     return response()->json($reply, 200, [], JSON_PRETTY_PRINT);
 });
 
@@ -46,10 +46,15 @@ Route::post('/printer/{id}', function($id) {
 });
 
 Route::delete('/printer/{id}', function($id) {
-    $printer = Printer::whereId($id)->first();
-    if(!$printer) return;
-    foreach ($printer->parts()->get() as $part) $part->delete();
-    $printer->delete();
+    $ids = strstr($id, ',') ? explode(',', $id) : [$id];
+    foreach ($ids as $i) {
+        $printer = Printer::whereId($i)->first();
+        if (!$printer) continue;
+        foreach ($printer->parts()->get() as $part) {
+            $part->delete();
+        }
+        $printer->delete();
+    }
 });
 
 Route::post('/printers', function() {
@@ -62,3 +67,16 @@ Route::post('/printers', function() {
         ->header('Content-type', 'application/json');
     }
 );
+
+Route::get('/export/{ids}', function($ids) {
+    $txt = "Name,Coverage (%),Standard ($),High Yield ($)\n";
+    $printers = Printer::all();
+    $ids = $ids == 'all'? false : explode(',', $ids);
+    foreach ($printers as $printer) {
+        if(!$ids || in_array($printer->getKey(), $ids)) {
+            $groups = $printer->getGroups();
+            $txt .= "\"{$printer->getAttribute('name')}\",{$printer->getAttribute('coverage')},{$groups->price->normal},{$groups->price->high}\n";
+        }
+    }
+    return response($txt)->header('Content-type', 'text/plain');
+});
