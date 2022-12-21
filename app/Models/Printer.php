@@ -152,11 +152,16 @@ class Printer extends Model {
     private function calcGroupDetails($part, $mindCoverage = false, $parts) {
         extract($part->getAttributes());
         $price = empty($price) ? 10.0 : $price;
-        if(empty($yield)) foreach($parts as $p) {
+        if(empty($yield)) foreach($parts as $p) { // Search yield in other parts
             if(empty($yield) && $p->getAttribute('yield')) $yield = $p->getAttribute('yield');
             else if($p->getAttribute('type') == $type &&  $p->getAttribute('color') == $color) $yield = $p->getAttribute('yield');
         }
-        $yield = empty($yield) ? 300 : $yield;
+        if(empty($yield)) $yield = match ($type) {
+            "standard" => 2500,
+            "economy" => 200,
+            "high yield" => 4000,
+            default => 150000 // // transfer belt, waste toner, drum unit etc.
+        };
         $perCopy = $mindCoverage ?
             round($this->coverage * $price / $yield / 5,4) :
             round($price / $yield,4);
