@@ -110,13 +110,15 @@ class Printer extends Model {
 
     public function getGroups() {
         $response = (object) ['price'=>(object)['normal'=>0,'high'=>0],'normal'=>[],'high'=>[],'other'=>[]];
-        $colors = $normal = $high = $other = [];
+        $colors = $normal = $high = $other = $types = [];
         $parts = $this->parts()->select()->orderByDesc('yield')->get();
         foreach ($parts as $part) {
             extract($part->getAttributes());
             if(!in_array($type, ["standard", "economy", "high yield"])) {
+                if(isset($types[$type])) continue; // Unique type for equipment
                 if(!$yield) $yield = 150000; // // transfer belt, waste toner, drum unit etc.
                 $perCopy = round($price / $yield,4);
+                $types[$type] = true;
                 $color = 'n/a';
                 $other[] = (object) compact('name', 'type', 'color', 'price', 'yield', 'perCopy');
             } else {
