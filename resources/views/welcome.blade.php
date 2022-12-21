@@ -250,7 +250,7 @@
                                 <th>Color</th>
                                 <th>Yield</th>
                                 <th>Price</th>
-                                <th>PerCopy</th>
+                                <th>Per Copy</th>
                             </tr>
                             </thead>
                             <tbody id="printerGroupsBody"></tbody>

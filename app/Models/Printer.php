@@ -109,72 +109,46 @@ class Printer extends Model {
     }
 
     public function getGroups() {
-        $response = (object) ['normal' => [], 'high' => [], 'other' => [],
-            'price' => (object)['normal' => 0, 'high' => 0]];
-        // Min yield -- normal cartridges
-        $cartridges = $this->parts()
-            ->selectRaw('*,min(yield) as yield')
-            ->whereIn('type', ["standard","economy"])
-//            ->where('name', 'like', '%Cartridge%')
-            ->groupBy('color')->get();
-        if(count($cartridges)<1) {
-            $cartridges = $this->parts()
-                ->selectRaw('*,min(yield) as yield')
-                ->where('name', 'like', '%Cartridge%')
-                ->groupBy('color')->get();
+        $response = (object) ['price' => (object)['normal' => 0, 'high' => 0]];
+        $colors = $types = $high = $normal = $other = [];
+        $parts = $this->parts()->select()->orderByDesc('yield')->get();
+        foreach ($parts as $part) {
+            extract($part->getAttributes());
+            if(!in_array($type, ["standard", "economy", "high yield"])) {
+                if(!$yield) $yield = 150000; // // transfer belt, waste toner, drum unit etc.
+                $perCopy = round($price / $yield,4);
+                $color = 'n/a';
+                $other[] = (object) compact('name', 'type', 'color', 'price', 'yield', 'perCopy');
+            } else {
+                if (!isset($colors[$color])) $colors[$color] = [];
+                if (!isset($types[$type])) $types[$type] = [];
+                $colors[$color][] = $types[$type][] = (object)compact('name', 'type', 'color', 'price', 'yield');
+            }
         }
-        foreach ($cartridges as $cartridge) {
-            $response->normal[] = $this->calcGroupDetails($cartridge, true, $cartridges);
+        $previousYield = 0;
+        foreach($colors as $color => $parts) foreach ($parts as $part) {
+            if($part->yield > 0) $previousYield = $part->yield;
+            else if($previousYield > 0) $part->yield = $previousYield;
+            else $part->yield = $previousYield = match ($type) {
+                "standard" => 2500,
+                "economy" => 200,
+                "high yield" => 4000
+            };
+            $part->perCopy = round($this->coverage * $part->price / $part->yield / 5,4);
+            if(!isset($high[$color])) $high[$color] = $part; // Max yield first
+            $normal[$color] = $part;
         }
-        // Max yield
-        $cartridges = $this->parts()
-            ->selectRaw('*,max(yield) as yield')
-            ->where('type', '=',"high yield")
-            ->groupBy('color')->get();
-        if(count($cartridges)<1) {
-            $cartridges = $this->parts()
-                ->selectRaw('*,max(yield) as yield')
-                ->where('name', 'like', '%Cartridge%')
-                ->groupBy('color')->get();
-        }
-        foreach ($cartridges as $cartridge) {
-            $response->high[] = $this->calcGroupDetails($cartridge, true, $cartridges);
-        }
-        // Other equipment
-        $others = $this->parts()->selectRaw('*,max(yield) as yield')
-            //->where('name', 'not like', '%Cartridge%')
-            ->whereNotIn('type', ["standard","high yield","economy"])
-            ->orderBy('price', 'asc')
-            ->groupBy('type')->get();
-        foreach ($others as $part) {
-            $response->other[] = $this->calcGroupDetails($part, false, $others);
-        }
+        $response->normal = array_values($normal);
+        $response->high = array_values($high);
+        $response->other = array_values($other);
         // Calc high yield & normal prices:
-        foreach ($response->normal as $p) $response->price->normal += $p->perCopy;
-        foreach ($response->high as $p) $response->price->high += $p->perCopy;
-        foreach ($response->other as $p) {
+        foreach ($normal as $p) $response->price->normal += $p->perCopy;
+        foreach ($high as $p) $response->price->high += $p->perCopy;
+        foreach ($other as $p) {
             $response->price->normal += $p->perCopy;
             $response->price->high += $p->perCopy;
         }
         return $response;
     }
 
-    private function calcGroupDetails($part, $mindCoverage = false, $parts) {
-        extract($part->getAttributes());
-        $price = empty($price) ? 10.0 : $price;
-        if(empty($yield)) foreach($parts as $p) { // Search yield in other parts
-            if(empty($yield) && $p->getAttribute('yield')) $yield = $p->getAttribute('yield');
-            else if($p->getAttribute('type') == $type &&  $p->getAttribute('color') == $color) $yield = $p->getAttribute('yield');
-        }
-        if(empty($yield)) $yield = match ($type) {
-            "standard" => 2500,
-            "economy" => 200,
-            "high yield" => 4000,
-            default => 150000 // // transfer belt, waste toner, drum unit etc.
-        };
-        $perCopy = $mindCoverage ?
-            round($this->coverage * $price / $yield / 5,4) :
-            round($price / $yield,4);
-        return (object) compact('name', 'type', 'color', 'price', 'yield', 'perCopy');
-    }
 }
