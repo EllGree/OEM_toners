@@ -16,7 +16,7 @@ body {font-family: 'Nunito', sans-serif;background-color:#d8e0e9}
 
 #alert {position: fixed;top: 133px;left: max(5%, calc(50% - 360px));width: 720px;max-width: 90%;font-weight: 600;z-index: 10001;border-width: 5px;box-shadow: 6px 6px 9px -4px rgb(0 0 0 / 43%);}
 
-#printers {box-shadow: 0px 7px 12px -6px rgb(0 0 0 / 45%);}
+#printers {box-shadow: 0px 4px 12px 3px rgb(0 0 0 / 45%);}
 #printers th:first-child, #printers td:first-child {width:28px;cursor:default;background-image: none;background-color: #487db9 !important;text-align: center;}
 #printers thead td:first-child * {display: none;}
 #printers th:first-child:hover, #printers td:first-child:hover {background-color: #487db9 !important;}
