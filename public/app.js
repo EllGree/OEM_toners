@@ -133,6 +133,26 @@ const app = {
                 app.download_csv('export.csv', reply.data);
             }).catch(app.catchError).finally(app.finally);
     },
+    showGroups: (groups) => {
+        let html = '', add = (p) => '<tr><td>'+p.name+'</td><td>'+p.type+'</td><td>'+
+            p.color+'</td><td>'+p.yield+'</td><td>$'+p.price+'</td><td>$'+p.perCopy+'</td></tr>';
+        if(groups.normal.length) {
+            html += '<tr><th colspan=6>Standard Cartridges</th></tr>';
+            groups.normal.forEach((part) => html += add(part));
+        }
+        if(groups.high.length) {
+            html += '<tr><th colspan=6>High Yield Cartridges</th></tr>';
+            groups.normal.forEach((part) => html += add(part));
+        }
+        if(groups.other.length) {
+            html += '<tr><th colspan=6>Other Equipment</th></tr>';
+            groups.normal.forEach((part) => html += add(part));
+        }
+        const label = groups.other.length ? 'Cartridge + Equipment' : 'Cartridge';
+        html += '<tr><th colspan=3>Total '+label+':</th><th colspan=3>Total HY '+label+':</th></tr>';
+        html += '<tr><td colspan=3>$'+groups.price.normal+' per copy</td><td colspan=3>$'+groups.price.high+' per copy</td></tr>';
+        $('#printerGroupsBody').html(html);
+    },
     rowClick: (e) => {
         if(app.checkQueue()) return;
         app.LastPrinter = app.getLastPrinter(e.target);
@@ -154,7 +174,7 @@ const app = {
                         r.price + '</td></tr>';
                 });
                 $('#printerPartsBody').html(html);
-                $('#groups').html(reply.data.groups);
+                app.showGroups(reply.data.groups);
                 app.tablesorter('#printerParts');
                 $('#detailsModal').modal('show');
             }).catch(app.catchError).finally(app.finally);

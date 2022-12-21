@@ -30,7 +30,7 @@ Route::get('/printers', function() {
 Route::get('/printer/{printer}', function(Printer $printer) {
     $reply = (object) $printer->getAttributes();
     $reply->parts = $printer->parts;
-    $reply->groups = $printer->groupsDebug();
+    $reply->groups = $printer->getGroups();
     return response()->json($reply, 200, [], JSON_PRETTY_PRINT);
 });
 
@@ -74,15 +74,8 @@ Route::get('/export/{ids}', function($ids) {
     $ids = $ids == 'all'? false : explode(',', $ids);
     foreach ($printers as $printer) {
         if(!$ids || in_array($printer->getKey(), $ids)) {
-            $price = $hyprice = 0;
             $groups = $printer->getGroups();
-            foreach ($groups->normal as $p) $price += $p->perCopy;
-            foreach ($groups->high as $p) $hyprice += $p->perCopy;
-            foreach ($groups->other as $p) {
-                $price += $p->perCopy;
-                $hyprice += $p->perCopy;
-            }
-            $txt .= "\"{$printer->getAttribute('name')}\",{$printer->getAttribute('coverage')},{$price},{$hyprice}\n";
+            $txt .= "\"{$printer->getAttribute('name')}\",{$printer->getAttribute('coverage')},{$groups->price->normal},{$groups->price->high}\n";
         }
     }
     return response($txt)->header('Content-type', 'text/plain');

@@ -242,12 +242,20 @@
                         </button>
                     </div>
                     <div class="tab-pane hidden" id="groups" role="tabpanel" aria-labelledby="groups-tab">
-                        <p><strong>This tab is under development.</strong></p>
-                        <p>Presumably here should be a solution to the combinatorial problem of breaking down consumable parts
-                            (toner, replaceable spare parts, cleaning materials, etc.) into groups, normalize the cost of consumables
-                            (e.g. cost of printing per 1,000 pages), and calculate toner consumption based on a given printer's page coverage.</p>
-                        <p>Unfortunately, I could not formalize the problem, because of the lack of data on yield and/or price of parts,
-                            or the apparent lack of necessary types of parts, I could not even determine the principle of their grouping.</p>
+                        <table id="printerGroups">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Color</th>
+                                <th>Yield</th>
+                                <th>Price</th>
+                                <th>PerCopy</th>
+                            </tr>
+                            </thead>
+                            <tbody id="printerGroupsBody"></tbody>
+                        </table>
+
                     </div>
                 </div>
             </div>
