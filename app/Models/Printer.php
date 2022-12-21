@@ -37,8 +37,49 @@ class Printer extends Model {
         return $this->hasMany(Part::class);
     }
 
-    public function groupsDebug() {
+    private function calcGroup($part, $mindCoverage = false) {
+        extract($part->getAttributes());
+        $price = empty($price) ? 0.001 : $price;
+        $yield = empty($yield) ? 100 : $yield;
+        $perCopy = $mindCoverage ?
+            round($this->coverage * $price / $yield / 5,4) :
+            round($price / $yield,4);
+        return (object) compact('name', 'type', 'price', 'yield', 'perCopy');
+    }
 
+    public function getGroups() {
+        $response = (object) ['normal' => [], 'high' => [], 'other' => []];
+        // Min yield -- normal cartridges
+        $cartridges = $this->parts()
+            ->selectRaw('*,min(yield) as yield')
+            ->where('name', 'like', '%Cartridge%')
+            ->groupBy('color')->get();
+        foreach ($cartridges as $cartridge) {
+            $response->normal[] = $this->calcGroup($cartridge, true);
+        }
+
+        // Max yield
+        $cartridges = $this->parts()
+            ->selectRaw('*,max(yield) as yield')
+            ->where('name', 'like', '%Cartridge%')
+            ->groupBy('color')->get();
+        foreach ($cartridges as $cartridge) {
+            $response->high[] = $this->calcGroup($cartridge, true);
+        }
+
+        // Other equipment
+        $others = $this->parts()->selectRaw('*,max(yield) as yield')
+            ->where('name', 'not like', '%Cartridge%')
+            ->orderBy('price', 'asc')
+            ->groupBy('type', 'color')->get();
+        foreach ($others as $part) {
+            $response->other[] = $this->calcGroup($part);
+        }
+        return $response;
+    }
+
+    public function groupsDebug() {
+//        $response = '<pre>'.print_r($this->getGroups(), 1);
         $response = '<pre>';
         // Min yield,
         $cartridges = $this->parts()
@@ -96,7 +137,7 @@ class Printer extends Model {
         $perCopy = 0;
         foreach ($others as $part) {
             $response .= "$part->name\t$part->type\t$part->color\t$part->yield\t$part->price\t";
-            $copyCost = ($part->yield > 0 ? ($part->price / $part->yield) : ($part->price / min($cartridgeYields)));
+            $copyCost = ($part->yield > 0 ? ($part->price / $part->yield) : ($part->price / (min($cartridgeYields)>0?min($cartridgeYields):1)));
             $response .= "Per copy: \${$copyCost}" . PHP_EOL;
             $perCopy += $copyCost;
         }
