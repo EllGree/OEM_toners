@@ -109,8 +109,8 @@ class Printer extends Model {
     }
 
     public function getGroups() {
-        $response = (object) ['price' => (object)['normal' => 0, 'high' => 0]];
-        $colors = $types = $high = $normal = $other = [];
+        $response = (object) ['price'=>(object)['normal'=>0,'high'=>0],'normal'=>[],'high'=>[],'other'=>[]];
+        $colors = $normal = $high = $other = [];
         $parts = $this->parts()->select()->orderByDesc('yield')->get();
         foreach ($parts as $part) {
             extract($part->getAttributes());
@@ -121,30 +121,38 @@ class Printer extends Model {
                 $other[] = (object) compact('name', 'type', 'color', 'price', 'yield', 'perCopy');
             } else {
                 if (!isset($colors[$color])) $colors[$color] = [];
-                if (!isset($types[$type])) $types[$type] = [];
-                $colors[$color][] = $types[$type][] = (object)compact('name', 'type', 'color', 'price', 'yield');
+                $colors[$color][] = (object)compact('name', 'type', 'color', 'price', 'yield');
             }
         }
         $previousYield = 0;
-        foreach($colors as $color => $parts) foreach ($parts as $part) {
-            if($part->yield > 0) $previousYield = $part->yield;
-            else if($previousYield > 0) $part->yield = $previousYield;
-            else $part->yield = $previousYield = match ($type) {
-                "standard" => 2500,
-                "economy" => 200,
-                "high yield" => 4000
-            };
-            $part->perCopy = round($this->coverage * $part->price / $part->yield / 5,4);
-            if(!isset($high[$color])) $high[$color] = $part; // Max yield first
-            $normal[$color] = $part;
+        foreach($colors as $color => $parts) {
+            if($color == 'tri-color' && !empty($colors['cyan']) && !empty($colors['magenta'])) {
+                continue; // Skip tri-color cartridge if there are CMYK ones
+            }
+            foreach ($parts as $part) {
+                if($part->yield > 0) $previousYield = $part->yield;
+                else if($previousYield > 0) $part->yield = $previousYield;
+                else $part->yield = $previousYield = match ($type) {
+                    "standard" => 2500,
+                    "economy" => 200,
+                    "high yield" => 4000
+                };
+                $part->perCopy = round($this->coverage * $part->price / $part->yield / 5,4);
+                if(!isset($high[$color])) $high[$color] = $part; // Max yield first
+                $normal[$color] = $part;
+            }
         }
-        $response->normal = array_values($normal);
-        $response->high = array_values($high);
-        $response->other = array_values($other);
         // Calc high yield & normal prices:
-        foreach ($normal as $p) $response->price->normal += $p->perCopy;
-        foreach ($high as $p) $response->price->high += $p->perCopy;
+        foreach ($normal as $p) {
+            $response->normal[] = $p;
+            $response->price->normal += $p->perCopy;
+        }
+        foreach ($high as $p) {
+            $response->high[] = $p;
+            $response->price->high += $p->perCopy;
+        }
         foreach ($other as $p) {
+            $response->other[] = $p;
             $response->price->normal += $p->perCopy;
             $response->price->high += $p->perCopy;
         }

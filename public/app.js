@@ -148,7 +148,7 @@ const app = {
             groups.other.forEach((part) => html += add(part));
         }
         const label = groups.other.length ? 'Cartridges + Equipment' : 'Cartridges only';
-        html += '<tr class="centered"><th>Total '+label+':</th>'+
+        html += '<tr class="centered"><th>Total Standard '+label+':</th>'+
             '<th colspan=5>Total High Yield '+label+':</th></tr>' +
             '<tr class="centered"><td>$'+groups.price.normal+' per copy</td>'+
             '<td colspan=5>$'+groups.price.high+' per copy</td></tr>';
